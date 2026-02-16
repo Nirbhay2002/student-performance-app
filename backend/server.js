@@ -35,7 +35,7 @@ async function startServer() {
 
     app.get('/api/students', async (req, res) => {
       try {
-        const page = parseInt(req.query.page) || 0;
+        const page = req.query.page !== undefined ? parseInt(req.query.page) : null;
         const limit = parseInt(req.query.limit) || 10;
         const search = req.query.search || '';
         const stream = req.query.stream || 'All';
@@ -51,29 +51,21 @@ async function startServer() {
         if (stream !== 'All') query.stream = stream;
         if (batch !== 'All') query.batch = batch;
 
+        if (page === null) {
+          // Dashboard optimization: fetch ALL relevant fields directly from Student model
+          // This avoids N+1 marks queries and is very fast even for 1000+ students
+          const students = await Student.find(query).lean();
+          return res.json({ students, total: students.length });
+        }
+
         const total = await Student.countDocuments(query);
         const students = await Student.find(query)
           .skip(page * limit)
           .limit(limit)
           .lean();
 
-        // Fetch marks and calculate scores for the current slice
-        const studentData = await Promise.all(students.map(async (student) => {
-          const marks = await Marks.find({ studentId: student._id });
-          const performanceScore = calculatePerformance(marks);
-          const averageMarks = calculateAverageMarks(marks);
-          const category = getCategory(performanceScore);
-
-          return {
-            ...student,
-            performanceScore,
-            averageMarks,
-            category
-          };
-        }));
-
         res.json({
-          students: studentData,
+          students,
           total,
           page,
           totalPages: Math.ceil(total / limit)

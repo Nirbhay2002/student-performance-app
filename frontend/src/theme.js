@@ -44,13 +44,13 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 8,
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
+          borderRadius: 8,
           padding: '10px 28px',
           boxShadow: 'none',
           '&:hover': {
@@ -65,7 +65,7 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 20,
+          borderRadius: 12,
           boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
           border: '1px solid rgba(255, 255, 255, 0.3)',
         },

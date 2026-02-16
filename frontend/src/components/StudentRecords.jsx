@@ -135,7 +135,7 @@ const StudentRecords = () => {
             </Box>
 
             {/* Filters */}
-            <Paper sx={{ p: 3, mb: 4, borderRadius: 4, border: '1px solid #f0f0f0' }}>
+            <Paper sx={{ p: 3, mb: 4, borderRadius: 1.5, border: '1px solid #f0f0f0' }}>
                 <Grid container spacing={2} alignItems="center">
                     <Grid item xs={12} md={6}>
                         <TextField
@@ -182,7 +182,7 @@ const StudentRecords = () => {
             </Paper>
 
             {/* Table */}
-            <TableContainer component={Paper} sx={{ borderRadius: 4, border: '1px solid #f0f0f0', overflow: 'hidden', position: 'relative' }}>
+            <TableContainer component={Paper} sx={{ borderRadius: 1.5, border: '1px solid #f0f0f0', overflow: 'hidden', position: 'relative' }}>
                 {loading && (
                     <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, bgcolor: 'rgba(255,255,255,0.7)', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Typography color="primary" variant="h6">Loading...</Typography>

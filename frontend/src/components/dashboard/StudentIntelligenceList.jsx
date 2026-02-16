@@ -1,11 +1,11 @@
 import React from 'react';
 import { Card, Box, Typography, Chip } from '@mui/material';
 
-const StudentIntelligenceList = ({ students, onStudentClick, getCategoryColor }) => {
+const StudentIntelligenceList = ({ title, students, onStudentClick, getCategoryColor }) => {
     return (
-        <Card className="glass-card" sx={{ p: 3, height: '90%', overflow: 'hidden' }}>
-            <Typography variant="h6" sx={{ mb: 3 }}>Student Intelligence</Typography>
-            <Box sx={{ overflowY: 'auto', maxHeight: 400, pr: 1 }}>
+        <Card className="glass-card" sx={{ p: 3, flexGrow: 1, minHeight: 300 }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 800 }}>{title || 'Student Intelligence'}</Typography>
+            <Box sx={{ overflowY: 'auto', maxHeight: 350, pr: 1 }}>
                 {students.map(s => (
                     <Box
                         key={s._id}
@@ -13,7 +13,7 @@ const StudentIntelligenceList = ({ students, onStudentClick, getCategoryColor })
                         sx={{
                             p: 2,
                             mb: 1.5,
-                            borderRadius: 3,
+                            borderRadius: 1.25,
                             border: '1px solid #f0f2f5',
                             display: 'flex',
                             justifyContent: 'space-between',

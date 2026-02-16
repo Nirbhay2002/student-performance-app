@@ -43,7 +43,7 @@ const StatsCards = ({ students }) => {
                     <Card className="glass-card" sx={{ height: '100%' }}>
                         <CardContent>
                             <Box display="flex" alignItems="center">
-                                <Box sx={{ p: 2, borderRadius: 4, background: stat.gradient, color: stat.color, mr: 2.5 }}>
+                                <Box sx={{ p: 2, borderRadius: 1.5, background: stat.gradient, color: stat.color, mr: 2.5 }}>
                                     {stat.icon}
                                 </Box>
                                 <Box>

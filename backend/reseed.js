@@ -18,96 +18,92 @@ const seed = async () => {
         await Marks.deleteMany({});
         console.log('🗑️  Collections Cleared');
 
-        const studentProfiles = [
-            // High Achievers (85-95%)
-            { name: 'Aarav Sharma', roll: 'NM001', stream: 'Non-Medical', trend: 'high' },
-            { name: 'Diya Patel', roll: 'M001', stream: 'Medical', trend: 'high' },
-            { name: 'Aditya Rao', roll: 'NM002', stream: 'Non-Medical', trend: 'high' },
+        const firstNames = ['Aarav', 'Diya', 'Aditya', 'Arjun', 'Ananya', 'Ishaan', 'Sana', 'Vihaan', 'Isha', 'Aryan', 'Rohan', 'Saanvi', 'Tanishq', 'Kabir', 'Myra', 'Zoya', 'Devansh', 'Kiara', 'Rishabh', 'Avni', 'Rudra', 'Navya', 'Reyansh', 'Prisha', 'Krishna', 'Kaira', 'Shaurya', 'Anvi', 'Atharv', 'Aadhya'];
+        const lastNames = ['Sharma', 'Patel', 'Singh', 'Rao', 'Kumar', 'Malhotra', 'Khan', 'Reddy', 'Gupta', 'Joshi', 'Mehta', 'Nair', 'Jain', 'Verma', 'Desai', 'Ahmed', 'Pillai', 'Sen', 'Pant', 'Shah', 'Pandey', 'Chopra', 'Kapoor', 'Iyer', 'Bose', 'Das', 'Mishra', 'Yadav', 'Thakur', 'Kulkarni'];
+        const trends = ['high', 'average', 'improving', 'declining', 'struggling', 'random'];
+        const streams = ['Medical', 'Non-Medical'];
+        const batches = ['A1', 'A2', 'B1', 'B2', 'C1'];
 
-            // Consistent Average (70-80%)
-            { name: 'Arjun Kumar', roll: 'NM003', stream: 'Non-Medical', trend: 'average' },
-            { name: 'Ananya Singh', roll: 'M002', stream: 'Medical', trend: 'average' },
-            { name: 'Ishaan Malhotra', roll: 'NM004', stream: 'Non-Medical', trend: 'average' },
-            { name: 'Sana Khan', roll: 'M003', stream: 'Medical', trend: 'average' },
-
-            // Improving Trend (60% -> 85%)
-            { name: 'Vihaan Reddy', roll: 'NM005', stream: 'Non-Medical', trend: 'improving' },
-            { name: 'Isha Gupta', roll: 'M004', stream: 'Medical', trend: 'improving' },
-            { name: 'Aryan Joshi', roll: 'NM006', stream: 'Non-Medical', trend: 'improving' },
-
-            // Declining Trend (90% -> 60%)
-            { name: 'Rohan Mehta', roll: 'NM007', stream: 'Non-Medical', trend: 'declining' },
-            { name: 'Saanvi Nair', roll: 'M005', stream: 'Medical', trend: 'declining' },
-            { name: 'Tanishq Jain', roll: 'NM008', stream: 'Non-Medical', trend: 'declining' },
-
-            // Struggling (45-60%)
-            { name: 'Kabir Verma', roll: 'NM009', stream: 'Non-Medical', trend: 'struggling' },
-            { name: 'Myra Desai', roll: 'M006', stream: 'Medical', trend: 'struggling' },
-            { name: 'Zoya Ahmed', roll: 'NM010', stream: 'Non-Medical', trend: 'struggling' },
-
-            // Random Mixed
-            { name: 'Devansh Pillai', roll: 'NM011', stream: 'Non-Medical', trend: 'random' },
-            { name: 'Kiara Sen', roll: 'M007', stream: 'Medical', trend: 'random' },
-            { name: 'Rishabh Pant', roll: 'NM012', stream: 'Non-Medical', trend: 'random' },
-            { name: 'Avni Shah', roll: 'M008', stream: 'Medical', trend: 'random' }
-        ];
+        console.log('🌱 Generating 600 students...');
 
         const exams = ['Mid-Term 1', 'Unit Test 1', 'Mid-Term 2', 'Unit Test 2', 'Final Exam'];
 
-        for (const profile of studentProfiles) {
+        const { calculatePerformance, getCategory, calculateAverageMarks } = require('./logic/ranking');
+
+        for (let i = 1; i <= 600; i++) {
+            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const name = `${firstName} ${lastName} #${i}`;
+            const stream = streams[Math.floor(Math.random() * streams.length)];
+            const batch = batches[Math.floor(Math.random() * batches.length)];
+            const trend = trends[Math.floor(Math.random() * trends.length)];
+            const rollPrefix = stream === 'Medical' ? 'M' : 'NM';
+            const roll = `${rollPrefix}${i.toString().padStart(3, '0')}`;
+
             const student = new Student({
-                name: profile.name,
-                rollNumber: profile.roll,
-                email: `${profile.name.toLowerCase().replace(' ', '.')}@example.com`,
-                batch: 'A1',
-                stream: profile.stream
+                name,
+                rollNumber: roll,
+                email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${i}@example.com`,
+                batch,
+                stream,
+                performanceScore: 0,
+                averageMarks: 0,
+                category: 'Medium'
             });
             await student.save();
 
-            for (let i = 0; i < exams.length; i++) {
-                let baseScore;
-                const progress = i / (exams.length - 1); // 0 to 1
+            let examRecords = [];
+            let totalPerfScore = 0;
+            let totalAvgMarks = 0;
 
-                switch (profile.trend) {
-                    case 'high':
-                        baseScore = 88 + Math.random() * 7;
-                        break;
-                    case 'average':
-                        baseScore = 72 + Math.random() * 8;
-                        break;
-                    case 'improving':
-                        baseScore = 60 + (progress * 25) + (Math.random() * 5);
-                        break;
-                    case 'declining':
-                        baseScore = 90 - (progress * 30) + (Math.random() * 5);
-                        break;
-                    case 'struggling':
-                        baseScore = 45 + Math.random() * 15;
-                        break;
-                    default:
-                        baseScore = 60 + Math.random() * 35;
+            for (let j = 0; j < exams.length; j++) {
+                let baseScore;
+                const progress = j / (exams.length - 1);
+
+                switch (trend) {
+                    case 'high': baseScore = 88 + Math.random() * 7; break;
+                    case 'average': baseScore = 72 + Math.random() * 8; break;
+                    case 'improving': baseScore = 60 + (progress * 25) + (Math.random() * 5); break;
+                    case 'declining': baseScore = 90 - (progress * 30) + (Math.random() * 5); break;
+                    case 'struggling': baseScore = 45 + Math.random() * 15; break;
+                    default: baseScore = 60 + Math.random() * 35;
                 }
 
                 const marks = new Marks({
                     studentId: student._id,
-                    examName: exams[i],
-                    date: new Date(Date.now() - (exams.length - 1 - i) * 30 * 24 * 60 * 60 * 1000), // Monthly intervals
+                    examName: exams[j],
+                    date: new Date(Date.now() - (exams.length - 1 - j) * 30 * 24 * 60 * 60 * 1000),
                     scores: {
                         physics: Math.round(baseScore + (Math.random() * 6 - 3)),
                         chemistry: Math.round(baseScore + (Math.random() * 6 - 3)),
-                        maths: profile.stream === 'Non-Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
-                        bio: profile.stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
+                        maths: stream === 'Non-Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
+                        bio: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
                     },
                     attendance: Math.round(80 + Math.random() * 20),
                     disciplinePoint: Math.round(7 + Math.random() * 3),
-                    remarks: `Performance trend: ${profile.trend}`
+                    remarks: `Auto-generated ${trend} trend`
                 });
-                await marks.save();
+                examRecords.push(marks);
             }
-            console.log(`✅ Seeded: ${profile.name} (${profile.stream}) - Trend: ${profile.trend}`);
+
+            // Save all marks for this student
+            await Marks.insertMany(examRecords);
+
+            // Calculate overall performance once for seeding
+            const perfScore = calculatePerformance(examRecords);
+            const avgMarks = calculateAverageMarks(examRecords);
+            const cat = getCategory(perfScore);
+
+            await Student.findByIdAndUpdate(student._id, {
+                performanceScore: perfScore,
+                averageMarks: avgMarks,
+                category: cat
+            });
+
+            if (i % 50 === 0) console.log(`🚀 Progress: ${i}/600 students seeded...`);
         }
 
-        console.log('\n✨ RESEED COMPLETE: 20 Students, 100 Exam Records generated.');
+        console.log('\n✨ RESEED COMPLETE: 600 Students generated with full exam history.');
         process.exit(0);
     } catch (err) {
         console.error('❌ SEED ERROR:', err);

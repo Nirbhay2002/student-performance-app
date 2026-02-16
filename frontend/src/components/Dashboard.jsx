@@ -6,7 +6,7 @@ import { studentService } from '../services/studentService';
 
 // Sub-components
 import StatsCards from './dashboard/StatsCards';
-import PerformanceChart from './dashboard/PerformanceChart';
+import PerformanceDistributionChart from './dashboard/PerformanceDistributionChart';
 import StudentIntelligenceList from './dashboard/StudentIntelligenceList';
 import ReportCardModal from './dashboard/ReportCardModal';
 
@@ -63,12 +63,17 @@ const Dashboard = () => {
     }
   };
 
+  // Optimization: Only show top/bottom for the intelligence list
+  const sortedStudents = [...students].sort((a, b) => (b.performanceScore || 0) - (a.performanceScore || 0));
+  const top10 = sortedStudents.slice(0, 10);
+  const bottom10 = sortedStudents.slice(-10).reverse();
+
   return (
     <Box className="fade-in">
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Box>
-          <Typography variant="h4" color="primary" gutterBottom>Performance Overview</Typography>
-          <Typography variant="body1" color="textSecondary">Real-time academic tracking and analytics portal</Typography>
+          <Typography variant="h4" color="primary" gutterBottom sx={{ fontWeight: 800 }}>Performance Dashboard</Typography>
+          <Typography variant="body1" color="textSecondary">Scalable analytics engine supporting {students.length} students</Typography>
         </Box>
         <Chip
           label="Academic Session 2025-26"
@@ -82,14 +87,27 @@ const Dashboard = () => {
 
       <Grid container spacing={4}>
         <Grid item xs={12} lg={8}>
-          <PerformanceChart students={students} />
+          <PerformanceDistributionChart students={students} />
         </Grid>
         <Grid item xs={12} lg={4}>
-          <StudentIntelligenceList
-            students={students}
-            onStudentClick={handleOpenReport}
-            getCategoryColor={getCategoryColor}
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <StudentIntelligenceList
+              title="🏆 Top Achievers"
+              students={top10}
+              onStudentClick={handleOpenReport}
+              getCategoryColor={getCategoryColor}
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={12} lg={4}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <StudentIntelligenceList
+              title="⚠️ Need Attention"
+              students={bottom10}
+              onStudentClick={handleOpenReport}
+              getCategoryColor={getCategoryColor}
+            />
+          </Box>
         </Grid>
       </Grid>
 

@@ -57,7 +57,7 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         startIcon={<SaveIcon />}
                         onClick={onSave}
                         disabled={!selectedStudent}
-                        sx={{ mt: 2, py: 1.5, borderRadius: 3, color: '#fff', fontWeight: 800 }}
+                        sx={{ mt: 2, py: 1.5, borderRadius: 1, color: '#fff', fontWeight: 800 }}
                     >
                         Publish Performance Record
                     </Button>

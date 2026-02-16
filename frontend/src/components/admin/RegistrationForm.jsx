@@ -30,7 +30,7 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
                         variant="contained"
                         size="large"
                         onClick={onRegister}
-                        sx={{ mt: 2, py: 1.5, borderRadius: 3 }}
+                        sx={{ mt: 2, py: 1.5, borderRadius: 1 }}
                     >
                         Register Candidate
                     </Button>
