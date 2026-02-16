@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { ThemeProvider, CssBaseline, Container, Box, AppBar, Toolbar, Typography, Tab, Tabs } from '@mui/material';
+import React, { useState } from 'react';
+import { ThemeProvider, CssBaseline, Box, AppBar, Toolbar, Typography, Tab, Tabs } from '@mui/material';
 import theme from './theme';
-import Dashboard from './components/Dashboard';
-import AdminPanel from './components/AdminPanel';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { routes } from './routes';
+import './App.css';
 
 function App() {
   const [tabValue, setTabValue] = useState(0);
@@ -13,33 +11,57 @@ function App() {
     setTabValue(newValue);
   };
 
+  // Find the active component from routes
+  const ActiveComponent = routes.find(r => r.id === tabValue)?.component || (() => null);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppBar position="sticky" elevation={0} color="inherit" sx={{ borderBottom: '1px solid #e0e0e0' }}>
-        <Toolbar>
-          <Typography variant="h6" color="primary" sx={{ flexGrow: 1, fontWeight: 800 }}>
-            STUDENT<span style={{ color: '#5f6368' }}>PRO</span>
+      <AppBar position="sticky" elevation={0} sx={{ color: 'text.primary' }}>
+        <Toolbar sx={{ maxWidth: 1440, width: '100%', mx: 'auto' }}>
+          <Typography variant="h6" color="primary" sx={{ flexGrow: 1, fontWeight: 900, letterSpacing: 1 }}>
+            STUDENT<span style={{ color: '#c5a059' }}>PRO</span>
           </Typography>
-          <Tabs value={tabValue} onChange={handleTabChange} sx={{ display: { xs: 'none', sm: 'block' } }}>
-            <Tab icon={<AssessmentIcon />} iconPosition="start" label="Dashboard" />
-            <Tab icon={<AdminPanelSettingsIcon />} iconPosition="start" label="Admin Access" />
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            className="nav-tabs"
+            sx={{ display: { xs: 'none', sm: 'block' } }}
+          >
+            {routes.map((route) => (
+              <Tab
+                key={route.id}
+                className="nav-tab"
+                icon={<route.icon />}
+                iconPosition="start"
+                label={route.label}
+                value={route.id}
+              />
+            ))}
           </Tabs>
         </Toolbar>
-        <Tabs 
-          value={tabValue} 
-          onChange={handleTabChange} 
-          variant="fullWidth" 
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          variant="fullWidth"
+          className="nav-tabs"
           sx={{ display: { xs: 'block', sm: 'none' } }}
         >
-          <Tab icon={<AssessmentIcon />} />
-          <Tab icon={<AdminPanelSettingsIcon />} />
+          {routes.map((route) => (
+            <Tab
+              key={route.id}
+              icon={<route.icon />}
+              value={route.id}
+            />
+          ))}
         </Tabs>
       </AppBar>
 
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        {tabValue === 0 ? <Dashboard /> : <AdminPanel />}
-      </Container>
+      <div className="app-container">
+        <Box className="fade-in">
+          <ActiveComponent />
+        </Box>
+      </div>
     </ThemeProvider>
   );
 }
