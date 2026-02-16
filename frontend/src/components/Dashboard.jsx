@@ -93,7 +93,7 @@ const Dashboard = () => {
                 <Box>
                   <Typography variant="body2" color="textSecondary">Average Score</Typography>
                   <Typography variant="h5">
-                    {students.length > 0 ? (students.reduce((acc, s) => acc + s.performanceScore, 0) / students.length).toFixed(1) : 0}%
+                    {students.length > 0 ? (students.reduce((acc, s) => acc + s?.averageMarks, 0) / students.length)?.toFixed(1) : 0} / 300
                   </Typography>
                 </Box>
               </Box>
@@ -153,7 +153,7 @@ const Dashboard = () => {
               >
                 <Box>
                   <Typography variant="body1" fontWeight={600}>{s.name}</Typography>
-                  <Typography variant="body2" color="textSecondary">Score: {s.performanceScore.toFixed(1)}%</Typography>
+                  <Typography variant="body2" color="textSecondary">Score: {s?.averageMarks?.toFixed(1)} / 300 ({s?.performanceScore?.toFixed(1)}%)</Typography>
                 </Box>
                 <Chip
                   label={s.category}
@@ -185,7 +185,8 @@ const Dashboard = () => {
                 <Grid item xs={6}><Typography><b>Student Name:</b> {selectedReport.name}</Typography></Grid>
                 <Grid item xs={6}><Typography><b>Roll No:</b> {selectedReport.rollNumber}</Typography></Grid>
                 <Grid item xs={6}><Typography><b>Batch Category:</b> {selectedReport.category}</Typography></Grid>
-                <Grid item xs={6}><Typography><b>Overall Score:</b> {selectedReport.performanceScore.toFixed(1)}%</Typography></Grid>
+                <Grid item xs={6}><Typography><b>Average Marks:</b> {selectedReport?.averageMarks?.toFixed(1)} / 300</Typography></Grid>
+                <Grid item xs={6}><Typography><b>Performance Score:</b> {selectedReport?.performanceScore?.toFixed(1)}%</Typography></Grid>
               </Grid>
 
               <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #eee' }}>

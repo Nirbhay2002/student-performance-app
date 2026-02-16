@@ -7,6 +7,7 @@ const studentSchema = new mongoose.Schema({
   batch: { type: String, default: 'General' },
   category: { type: String, enum: ['Best', 'Medium', 'Worst'], default: 'Medium' },
   performanceScore: { type: Number, default: 0 },
+  averageMarks: { type: Number, default: 0 },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Student', studentSchema);

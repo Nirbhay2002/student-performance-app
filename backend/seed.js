@@ -71,7 +71,7 @@ const generateExamData = (studentId, studentIndex) => {
 
 const seedDatabase = async () => {
     try {
-        console.log('🔌 Connecting to MongoDB...');
+        console.log('🔌 Connecting to MongoDB Atlas...')
         await mongoose.connect(MONGO_URI);
         console.log('✅ Connected to MongoDB');
 
@@ -101,14 +101,16 @@ const seedDatabase = async () => {
             // Calculate and update performance
             const allMarks = await Marks.find({ studentId: student._id });
             const score = calculatePerformance(allMarks);
+            const avgMarks = calculateAverageMarks(allMarks);
             const category = getCategory(score);
 
             await Student.findByIdAndUpdate(student._id, {
                 performanceScore: score,
+                averageMarks: avgMarks,
                 category: category,
             });
 
-            console.log(`  ✓ ${student.name}: ${createdMarks.length} exams, Score: ${score.toFixed(2)}, Category: ${category}`);
+            console.log(`  ✓ ${student.name}: ${createdMarks.length} exams, Score: ${score.toFixed(2)}, Marks: ${avgMarks.toFixed(1)}, Category: ${category}`);
         }
 
         console.log(`✅ Created ${totalMarks} exam records`);

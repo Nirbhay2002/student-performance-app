@@ -26,22 +26,40 @@ async function startServer() {
     // ONLY LOAD MODELS AFTER CONNECTION
     const Student = require('./models/Student');
     const Marks = require('./models/Marks');
-    const { calculatePerformance, getCategory } = require('./logic/ranking');
+    const { calculatePerformance, getCategory, calculateAverageMarks } = require('./logic/ranking');
 
     // --- HEALTH CHECK ---
     app.get('/health', (req, res) => res.json({ status: 'UP' }));
 
     // --- API ROUTES ---
 
-    // Get all students
     app.get('/api/students', async (req, res) => {
       try {
-        console.log('📥 GET /api/students');
+        console.log('📥 Received request for /api/students');
+        console.log('🔍 Fetching students and their marks...');
+
+        // Fetch all students
         const students = await Student.find().lean();
-        console.log(`✅ Returned ${students.length} students`);
-        res.json(students);
+
+        // Fetch marks for each student and calculate scores on the fly for consistency
+        const studentData = await Promise.all(students.map(async (student) => {
+          const marks = await Marks.find({ studentId: student._id });
+          const performanceScore = calculatePerformance(marks);
+          const averageMarks = calculateAverageMarks(marks);
+          const category = getCategory(performanceScore);
+
+          return {
+            ...student,
+            performanceScore,
+            averageMarks,
+            category
+          };
+        }));
+
+        console.log(`✅ Returned ${studentData.length} students with updated scores`);
+        res.json(studentData);
       } catch (err) {
-        console.error('❌ Error fetching students:', err.message);
+        console.error('❌ Error in /api/students:', err.message);
         res.status(500).json({ error: err.message });
       }
     });
@@ -66,14 +84,16 @@ async function startServer() {
 
         const allMarks = await Marks.find({ studentId });
         const score = calculatePerformance(allMarks);
+        const avgMarks = calculateAverageMarks(allMarks);
         const category = getCategory(score);
 
         await Student.findByIdAndUpdate(studentId, {
           performanceScore: score,
+          averageMarks: avgMarks,
           category: category
         });
 
-        res.json({ mark, performanceScore: score, category });
+        res.json({ mark, performanceScore: score, averageMarks: avgMarks, category });
       } catch (err) {
         res.status(500).json({ error: err.message });
       }
