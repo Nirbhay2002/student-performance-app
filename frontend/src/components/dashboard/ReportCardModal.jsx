@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, DialogContent, Box, Typography, Grid, Chip, Table,
 import DownloadIcon from '@mui/icons-material/Download';
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
+import SubjectTrendChart from './SubjectTrendChart';
 
 const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategoryColor, onDownload, onSendEmail }) => {
     return (
@@ -21,7 +22,7 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategor
                     right: 16,
                     top: 16,
                     color: (theme) => theme.palette.grey[500],
-                    zIndex: 1
+                    zIndex: 2
                 }}
             >
                 <CloseIcon />
@@ -58,36 +59,35 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategor
                                 <Typography variant="body1" fontWeight={700} color="primary">{selectedReport?.performanceScore?.toFixed(1)}%</Typography>
                             </Grid>
                             <Grid item xs={3}>
-                                <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>Global Status</Typography>
-                                <Box>{selectedReport && <Chip label={selectedReport.category} size="small" sx={{ fontWeight: 800, bgcolor: getCategoryColor(selectedReport.category), color: '#fff' }} />}</Box>
+                                <Typography variant="caption" color="textSecondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>Academic Stream</Typography>
+                                <Typography variant="body1" fontWeight={700} color="secondary">{selectedReport?.stream}</Typography>
                             </Grid>
                         </Grid>
+                        <SubjectTrendChart marks={reportData.marks} stream={selectedReport?.stream} />
 
                         <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #eee', borderRadius: 3, overflow: 'hidden' }}>
                             <Table>
                                 <TableHead sx={{ bgcolor: '#1a237e' }}>
                                     <TableRow>
                                         <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Test Date</TableCell>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Mathematics</TableCell>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Science</TableCell>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>English</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Physics</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Chemistry</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>{selectedReport?.stream === 'Medical' ? 'Biology' : 'Mathematics'}</TableCell>
                                         <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Attendance</TableCell>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Total (300)</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {reportData.marks.map((m, idx) => (
                                         <TableRow key={idx} sx={{ '&:nth-of-type(even)': { bgcolor: '#fafafa' } }}>
                                             <TableCell sx={{ fontWeight: 600 }}>{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</TableCell>
-                                            <TableCell>{m.scores.math}</TableCell>
-                                            <TableCell>{m.scores.science}</TableCell>
-                                            <TableCell>{m.scores.english}</TableCell>
+                                            <TableCell>{m.scores.physics}</TableCell>
+                                            <TableCell>{m.scores.chemistry}</TableCell>
+                                            <TableCell>{selectedReport?.stream === 'Medical' ? m.scores.bio : m.scores.maths}</TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" sx={{ color: m.attendance < 75 ? 'error.main' : 'success.main', fontWeight: 700 }}>
                                                     {m.attendance}%
                                                 </Typography>
                                             </TableCell>
-                                            <TableCell><Typography fontWeight={800}>{m.totalScore}</Typography></TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

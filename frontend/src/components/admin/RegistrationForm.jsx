@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Typography, Grid, TextField, MenuItem, Button } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, onRegister }) => {
+const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, stream, setStream, onRegister }) => {
     return (
         <Card className="glass-card" sx={{ p: 4, height: '100%' }}>
             <Typography variant="h6" gutterBottom display="flex" alignItems="center" color="primary" sx={{ mb: 3 }}>
@@ -15,11 +15,10 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
                 <Grid item xs={6}>
                     <TextField fullWidth label="Roll Number" variant="outlined" value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} />
                 </Grid>
-                <Grid item xs={6}>
-                    <TextField fullWidth select label="Batch" value={batch} onChange={(e) => setBatch(e.target.value)}>
-                        <MenuItem value="A1">Priority Batch A1</MenuItem>
-                        <MenuItem value="B1">Standard Batch B1</MenuItem>
-                        <MenuItem value="C1">Core Batch C1</MenuItem>
+                <Grid item xs={12}>
+                    <TextField fullWidth select label="Academic Stream" value={stream} onChange={(e) => setStream(e.target.value)}>
+                        <MenuItem value="Medical">Medical (PCB)</MenuItem>
+                        <MenuItem value="Non-Medical">Non-Medical (PCM)</MenuItem>
                     </TextField>
                 </Grid>
                 <Grid item xs={12}>

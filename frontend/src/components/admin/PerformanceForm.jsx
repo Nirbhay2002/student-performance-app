@@ -26,15 +26,22 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         {students.map(s => <MenuItem key={s._id} value={s._id}>{s.name} (Roll: {s.rollNumber})</MenuItem>)}
                     </TextField>
                 </Grid>
-                <Grid item xs={4}>
-                    <TextField fullWidth label="Mathematics" type="number" value={marks.math} onChange={handleChange('math')} />
+                <Grid item xs={students.find(s => s._id === selectedStudent)?.stream === 'Medical' || students.find(s => s._id === selectedStudent)?.stream === 'Non-Medical' ? 4 : 12}>
+                    <TextField fullWidth label="Physics" type="number" value={marks.physics} onChange={handleChange('physics')} />
                 </Grid>
                 <Grid item xs={4}>
-                    <TextField fullWidth label="Science" type="number" value={marks.science} onChange={handleChange('science')} />
+                    <TextField fullWidth label="Chemistry" type="number" value={marks.chemistry} onChange={handleChange('chemistry')} />
                 </Grid>
-                <Grid item xs={4}>
-                    <TextField fullWidth label="English" type="number" value={marks.english} onChange={handleChange('english')} />
-                </Grid>
+                {students.find(s => s._id === selectedStudent)?.stream === 'Non-Medical' && (
+                    <Grid item xs={4}>
+                        <TextField fullWidth label="Mathematics" type="number" value={marks.maths} onChange={handleChange('maths')} />
+                    </Grid>
+                )}
+                {students.find(s => s._id === selectedStudent)?.stream === 'Medical' && (
+                    <Grid item xs={4}>
+                        <TextField fullWidth label="Biology" type="number" value={marks.bio} onChange={handleChange('bio')} />
+                    </Grid>
+                )}
                 <Grid item xs={6}>
                     <TextField fullWidth label="Attendance (Percentage)" type="number" value={marks.attendance} onChange={handleChange('attendance')} />
                 </Grid>

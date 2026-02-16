@@ -12,12 +12,14 @@ const AdminPanel = () => {
   const [rollNumber, setRollNumber] = useState('');
   const [email, setEmail] = useState('');
   const [batch, setBatch] = useState('A1');
+  const [stream, setStream] = useState('Non-Medical');
 
   const [selectedStudent, setSelectedStudent] = useState('');
   const [marks, setMarks] = useState({
-    math: '',
-    science: '',
-    english: '',
+    physics: '',
+    chemistry: '',
+    maths: '',
+    bio: '',
     attendance: '',
     discipline: ''
   });
@@ -40,7 +42,7 @@ const AdminPanel = () => {
 
   const handleRegister = async () => {
     try {
-      await studentService.registerStudent({ name: studentName, rollNumber, email, batch });
+      await studentService.registerStudent({ name: studentName, rollNumber, email, batch, stream });
       setMsg('Student registered successfully!');
       setOpen(true);
       fetchStudents();
@@ -56,7 +58,12 @@ const AdminPanel = () => {
     try {
       await studentService.saveMarks({
         studentId: selectedStudent,
-        scores: { math: Number(marks.math), science: Number(marks.science), english: Number(marks.english) },
+        scores: {
+          physics: Number(marks.physics),
+          chemistry: Number(marks.chemistry),
+          maths: Number(marks.maths || 0),
+          bio: Number(marks.bio || 0)
+        },
         attendance: Number(marks.attendance),
         disciplinePoint: Number(marks.discipline),
         examName: 'Monthly Test'
@@ -64,9 +71,10 @@ const AdminPanel = () => {
       setMsg('Marks saved & Rank updated!');
       setOpen(true);
       setMarks({
-        math: '',
-        science: '',
-        english: '',
+        physics: '',
+        chemistry: '',
+        maths: '',
+        bio: '',
         attendance: '',
         discipline: ''
       });
@@ -93,6 +101,8 @@ const AdminPanel = () => {
             setEmail={setEmail}
             batch={batch}
             setBatch={setBatch}
+            stream={stream}
+            setStream={setStream}
             onRegister={handleRegister}
           />
         </Grid>

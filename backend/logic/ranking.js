@@ -10,7 +10,7 @@
 const getEffectiveTotalScore = (m) => {
   if (typeof m.totalScore === 'number') return m.totalScore;
   if (m.scores) {
-    return (m.scores.math || 0) + (m.scores.science || 0) + (m.scores.english || 0);
+    return (m.scores.physics || 0) + (m.scores.chemistry || 0) + (m.scores.maths || 0) + (m.scores.bio || 0);
   }
   return 0;
 };
@@ -53,12 +53,13 @@ const calculatePerformance = (allMarks) => {
 
 const getCategory = (score) => {
   if (score >= 80) return 'Best';
-  if (score >= 50) return 'Medium';
+  if (score >= 60) return 'Medium';
   return 'Worst';
 };
 
 const calculateAverageMarks = (allMarks) => {
   if (!allMarks || allMarks.length === 0) return 0;
+  // Use getEffectiveTotalScore to handle both old and new subject structures
   const sum = allMarks.reduce((acc, m) => acc + getEffectiveTotalScore(m), 0);
   return sum / allMarks.length;
 };

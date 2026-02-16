@@ -5,9 +5,10 @@ const marksSchema = new mongoose.Schema({
   examName: { type: String, required: true },
   date: { type: Date, default: Date.now },
   scores: {
-    math: { type: Number, default: 0 },
-    science: { type: Number, default: 0 },
-    english: { type: Number, default: 0 },
+    physics: { type: Number, default: 0 },
+    chemistry: { type: Number, default: 0 },
+    maths: { type: Number, default: 0 }, // For Non-Medical
+    bio: { type: Number, default: 0 },   // For Medical
   },
   totalScore: { type: Number },
   maxScore: { type: Number, default: 300 },
@@ -16,9 +17,8 @@ const marksSchema = new mongoose.Schema({
   remarks: { type: String },
 }, { timestamps: true });
 
-marksSchema.pre('save', function(next) {
-  this.totalScore = this.scores.math + this.scores.science + this.scores.english;
-  next();
+marksSchema.pre('save', function () {
+  this.totalScore = (this.scores.physics || 0) + (this.scores.chemistry || 0) + (this.scores.maths || 0) + (this.scores.bio || 0);
 });
 
 module.exports = mongoose.model('Marks', marksSchema);

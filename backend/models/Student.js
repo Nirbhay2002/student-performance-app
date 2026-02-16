@@ -5,6 +5,7 @@ const studentSchema = new mongoose.Schema({
   rollNumber: { type: String, required: true, unique: true },
   email: { type: String, required: true }, // Parent's email
   batch: { type: String, default: 'General' },
+  stream: { type: String, enum: ['Medical', 'Non-Medical'], required: true },
   category: { type: String, enum: ['Best', 'Medium', 'Worst'], default: 'Medium' },
   performanceScore: { type: Number, default: 0 },
   averageMarks: { type: Number, default: 0 },
