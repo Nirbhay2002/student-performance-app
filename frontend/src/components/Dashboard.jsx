@@ -22,7 +22,7 @@ const Dashboard = () => {
   const fetchStudents = async () => {
     try {
       const data = await studentService.getAllStudents();
-      setStudents(data);
+      setStudents(data.students);
     } catch (err) {
       alert(`Failed to load students: ${err.message}`);
     }

@@ -34,7 +34,7 @@ const AdminPanel = () => {
   const fetchStudents = async () => {
     try {
       const data = await studentService.getAllStudents();
-      setStudents(data);
+      setStudents(data.students);
     } catch (err) {
       console.error(err);
     }

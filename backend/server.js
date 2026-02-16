@@ -35,13 +35,29 @@ async function startServer() {
 
     app.get('/api/students', async (req, res) => {
       try {
-        console.log('📥 Received request for /api/students');
-        console.log('🔍 Fetching students and their marks...');
+        const page = parseInt(req.query.page) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || '';
+        const stream = req.query.stream || 'All';
+        const batch = req.query.batch || 'All';
 
-        // Fetch all students
-        const students = await Student.find().lean();
+        const query = {};
+        if (search) {
+          query.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { rollNumber: { $regex: search, $options: 'i' } }
+          ];
+        }
+        if (stream !== 'All') query.stream = stream;
+        if (batch !== 'All') query.batch = batch;
 
-        // Fetch marks for each student and calculate scores on the fly for consistency
+        const total = await Student.countDocuments(query);
+        const students = await Student.find(query)
+          .skip(page * limit)
+          .limit(limit)
+          .lean();
+
+        // Fetch marks and calculate scores for the current slice
         const studentData = await Promise.all(students.map(async (student) => {
           const marks = await Marks.find({ studentId: student._id });
           const performanceScore = calculatePerformance(marks);
@@ -56,8 +72,12 @@ async function startServer() {
           };
         }));
 
-        console.log(`✅ Returned ${studentData.length} students with updated scores`);
-        res.json(studentData);
+        res.json({
+          students: studentData,
+          total,
+          page,
+          totalPages: Math.ceil(total / limit)
+        });
       } catch (err) {
         console.error('❌ Error in /api/students:', err.message);
         res.status(500).json({ error: err.message });

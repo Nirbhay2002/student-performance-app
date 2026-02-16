@@ -1,8 +1,8 @@
 import api from './api';
 
 export const studentService = {
-    getAllStudents: async () => {
-        const res = await api.get('/students');
+    getAllStudents: async (params = {}) => {
+        const res = await api.get('/students', { params });
         return res.data;
     },
 
