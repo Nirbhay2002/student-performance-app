@@ -238,7 +238,7 @@ const StudentRecords = () => {
                                 </TableCell>
                                 <TableCell align="center">
                                     <Typography variant="body2" fontWeight={700}>
-                                        {student.averageMarks?.toFixed(1)}%
+                                        {student.averageMarks?.toFixed(1)}
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="center">

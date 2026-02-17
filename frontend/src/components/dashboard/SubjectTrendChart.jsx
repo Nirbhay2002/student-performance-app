@@ -17,10 +17,18 @@ const SubjectTrendChart = ({ marks, stream }) => {
         Elective: stream === 'Medical' ? m.scores.bio : m.scores.maths,
         Attendance: m.attendance,
         Total: m.totalScore
-    })).reverse(); // Chronological order
+    })); // Backend already sorts by date (oldest to newest)
+
+    if (!chartData || chartData.length === 0) {
+        return (
+            <Box sx={{ mb: 4, p: 4, border: '1px solid #f0f0f0', borderRadius: 1.5, textAlign: 'center', bgcolor: '#fafafa' }}>
+                <Typography variant="body2" color="textSecondary">No test records found for the selected timeframe.</Typography>
+            </Box>
+        );
+    }
 
     return (
-        <Box sx={{ mb: 4, p: 2, border: '1px solid #f0f0f0', borderRadius: 3 }}>
+        <Box sx={{ mb: 4, p: 2, border: '1px solid #f0f0f0', borderRadius: 1.5 }}>
             <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 2, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.7rem' }}>
                 Performance Trends: Physics, Chemistry & {stream === 'Medical' ? 'Biology' : 'Mathematics'}
             </Typography>
