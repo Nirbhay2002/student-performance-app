@@ -39,10 +39,10 @@ const generateExamData = (studentId, studentIndex) => {
 
     // Different performance profiles for variety
     const profiles = [
-        { math: 85, science: 80, english: 75, attendance: 95, discipline: 9 }, // Excellent
-        { math: 75, science: 70, english: 80, attendance: 90, discipline: 8 }, // Good
-        { math: 60, science: 65, english: 70, attendance: 85, discipline: 7 }, // Average
-        { math: 50, science: 55, english: 60, attendance: 75, discipline: 6 }, // Below Average
+        { math: 85, science: 80, english: 75, attendance: 95 }, // Excellent
+        { math: 75, science: 70, english: 80, attendance: 90 }, // Good
+        { math: 60, science: 65, english: 70, attendance: 85 }, // Average
+        { math: 50, science: 55, english: 60, attendance: 75 }, // Below Average
     ];
 
     const profile = profiles[studentIndex % profiles.length];
@@ -63,7 +63,6 @@ const generateExamData = (studentId, studentIndex) => {
             },
             maxScore: 300,
             attendance: Math.max(60, Math.min(100, profile.attendance + attendanceTrend)),
-            disciplinePoint: Math.max(1, Math.min(10, profile.discipline + (index % 2 === 0 ? 0.5 : -0.3))),
             remarks: index === exams.length - 1 ? 'Final performance evaluation' : '',
         };
     });

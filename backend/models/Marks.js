@@ -13,7 +13,6 @@ const marksSchema = new mongoose.Schema({
   totalScore: { type: Number },
   maxScore: { type: Number, default: 300 },
   attendance: { type: Number, required: true }, // Percentage (0-100)
-  disciplinePoint: { type: Number, required: true }, // Rating (1-10)
   remarks: { type: String },
 }, { timestamps: true });
 

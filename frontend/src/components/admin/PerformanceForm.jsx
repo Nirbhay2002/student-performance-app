@@ -42,11 +42,8 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         <TextField fullWidth label="Biology" type="number" value={marks.bio} onChange={handleChange('bio')} />
                     </Grid>
                 )}
-                <Grid item xs={6}>
+                <Grid item xs={12}>
                     <TextField fullWidth label="Attendance (Percentage)" type="number" value={marks.attendance} onChange={handleChange('attendance')} />
-                </Grid>
-                <Grid item xs={6}>
-                    <TextField fullWidth label="Discipline Index (1-10)" type="number" value={marks.discipline} onChange={handleChange('discipline')} />
                 </Grid>
                 <Grid item xs={12}>
                     <Button

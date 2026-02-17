@@ -1,10 +1,10 @@
 /**
  * Performance Formula:
- * (70% Test Performance) + (20% Improvement %) + (10% Attendance & Discipline)
+ * (70% Test Performance) + (20% Improvement %) + (10% Attendance)
  * 
  * Test Performance: (sum of marks / total possible marks) * 100
  * Improvement: Difference between current test % and average of previous tests %
- * Attendance & Discipline: ((attendance % * 0.7) + (discipline * 10 * 0.3))
+ * Attendance: latest attendance %
  */
 
 const getEffectiveTotalScore = (m) => {
@@ -44,10 +44,8 @@ const calculatePerformance = (allMarks) => {
   const improvementScore = Math.min(Math.max((improvement + 50), 0), 100);
 
   const latestAttendance = latest.attendance || 0;
-  const latestDiscipline = (latest.disciplinePoint || 0) * 10;
-  const attDisScore = (latestAttendance * 0.7) + (latestDiscipline * 0.3);
 
-  const finalScore = (avgTestScore * 0.7) + (improvementScore * 0.2) + (attDisScore * 0.1);
+  const finalScore = (avgTestScore * 0.7) + (improvementScore * 0.2) + (latestAttendance * 0.1);
   return finalScore || 0;
 };
 
@@ -59,7 +57,6 @@ const getCategory = (score) => {
 
 const calculateAverageMarks = (allMarks) => {
   if (!allMarks || allMarks.length === 0) return 0;
-  // Use getEffectiveTotalScore to handle both old and new subject structures
   const sum = allMarks.reduce((acc, m) => acc + getEffectiveTotalScore(m), 0);
   return sum / allMarks.length;
 };

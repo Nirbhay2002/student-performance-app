@@ -87,6 +87,22 @@ async function startServer() {
       }
     });
 
+    // --- BULK UPLOAD SETUP ---
+    const multer = require('multer');
+    const upload = multer({ storage: multer.memoryStorage() });
+    const { processBulkUpload } = require('./logic/bulkUpload');
+
+    app.post('/api/marks/bulk', upload.single('file'), async (req, res) => {
+      try {
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+        const result = await processBulkUpload(req.file.buffer);
+        res.json(result);
+      } catch (err) {
+        console.error('❌ Bulk Upload Error:', err.message);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
     // Add marks
     app.post('/api/marks', async (req, res) => {
       try {

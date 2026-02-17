@@ -80,7 +80,6 @@ const seed = async () => {
                         bio: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
                     },
                     attendance: Math.round(80 + Math.random() * 20),
-                    disciplinePoint: Math.round(7 + Math.random() * 3),
                     remarks: `Auto-generated ${trend} trend`
                 });
                 examRecords.push(marks);

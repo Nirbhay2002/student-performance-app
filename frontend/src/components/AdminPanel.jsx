@@ -5,6 +5,7 @@ import { studentService } from '../services/studentService';
 // Sub-components
 import RegistrationForm from './admin/RegistrationForm';
 import PerformanceForm from './admin/PerformanceForm';
+import BulkUploadZone from './admin/BulkUploadZone';
 
 const AdminPanel = () => {
   const [students, setStudents] = useState([]);
@@ -21,7 +22,6 @@ const AdminPanel = () => {
     maths: '',
     bio: '',
     attendance: '',
-    discipline: ''
   });
 
   const [open, setOpen] = useState(false);
@@ -65,7 +65,6 @@ const AdminPanel = () => {
           bio: Number(marks.bio || 0)
         },
         attendance: Number(marks.attendance),
-        disciplinePoint: Number(marks.discipline),
         examName: 'Monthly Test'
       });
       setMsg('Marks saved & Rank updated!');
@@ -76,7 +75,6 @@ const AdminPanel = () => {
         maths: '',
         bio: '',
         attendance: '',
-        discipline: ''
       });
     } catch (err) {
       console.error(err);
@@ -118,6 +116,8 @@ const AdminPanel = () => {
           />
         </Grid>
       </Grid>
+
+      <BulkUploadZone onUploadSuccess={fetchStudents} />
 
       <Snackbar open={open} autoHideDuration={4000} onClose={() => setOpen(false)}>
         <Alert onClose={() => setOpen(false)} severity="success" variant="filled" sx={{ width: '100%', borderRadius: 3 }}>
