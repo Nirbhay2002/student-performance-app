@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, Box, Typography, Grid, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, TextField } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, Box, Typography, Grid, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, TextField, TablePagination } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
@@ -9,6 +9,8 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategor
     const [startDate, setStartDate] = React.useState('');
     const [endDate, setEndDate] = React.useState('');
     const [activePreset, setActivePreset] = React.useState('all');
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
     const handlePreset = (preset) => {
         setActivePreset(preset);
@@ -56,6 +58,30 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategor
 
         return filtered;
     }, [reportData, startDate, endDate]);
+
+    // Reset pagination when filters change
+    React.useEffect(() => {
+        setPage(0);
+    }, [startDate, endDate]);
+
+    // For table: reverse to show latest first (graph still gets chronological order)
+    const reversedMarks = React.useMemo(() => {
+        return [...filteredMarks].reverse();
+    }, [filteredMarks]);
+
+    // Paginated data for table
+    const paginatedMarks = React.useMemo(() => {
+        return reversedMarks.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    }, [reversedMarks, page, rowsPerPage]);
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     return (
         <Dialog
@@ -187,7 +213,7 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategor
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {filteredMarks.map((m, idx) => (
+                                    {paginatedMarks.map((m, idx) => (
                                         <TableRow key={idx} sx={{ '&:nth-of-type(even)': { bgcolor: '#fafafa' } }}>
                                             <TableCell sx={{ fontWeight: 600 }}>{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</TableCell>
                                             <TableCell>{m.scores.physics}</TableCell>
@@ -202,6 +228,16 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategor
                                     ))}
                                 </TableBody>
                             </Table>
+                            <TablePagination
+                                rowsPerPageOptions={[10, 20, 50, 100]}
+                                component="div"
+                                count={reversedMarks.length}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                sx={{ borderTop: '1px solid #eee' }}
+                            />
                         </TableContainer>
 
                         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
