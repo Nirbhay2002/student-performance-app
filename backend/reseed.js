@@ -26,7 +26,12 @@ const seed = async () => {
 
         console.log('🌱 Generating 600 students...');
 
-        const exams = ['Mid-Term 1', 'Unit Test 1', 'Mid-Term 2', 'Unit Test 2', 'Final Exam'];
+        const exams = [
+            'April Unit Test', 'May Unit Test', 'June Mid-Term',
+            'July Unit Test', 'August Unit Test', 'September Mid-Term',
+            'October Unit Test', 'November Unit Test', 'December Mid-Term',
+            'January Unit Test', 'February Unit Test', 'March Final Exam'
+        ];
 
         const { calculatePerformance, getCategory, calculateAverageMarks } = require('./logic/ranking');
 
