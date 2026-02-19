@@ -22,8 +22,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { studentService } from '../services/studentService';
 import ReportCardModal from './dashboard/ReportCardModal';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
+import { downloadPDF } from '../utils';
 
 const StudentRecords = ({ navParams }) => {
     const [students, setStudents] = useState([]);
@@ -112,13 +111,7 @@ const StudentRecords = ({ navParams }) => {
 
     const downloadReport = () => {
         if (!selectedReport) return;
-        const input = document.getElementById('report-card');
-        html2canvas(input).then((canvas) => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            pdf.addImage(imgData, 'PNG', 0, 0);
-            pdf.save(`${selectedReport.name}_Report.pdf`);
-        });
+        downloadPDF('report-card', `${selectedReport.name}_Report`);
     };
 
     const sendEmail = () => {
@@ -144,7 +137,7 @@ const StudentRecords = ({ navParams }) => {
         setPage(0);
     };
 
-    const batches = ['All', 'A1', 'B1', 'C1']; // Simplified for now, or fetch from separate endpoint
+    const batches = ['All', 'Growth', 'Excel', 'Conquer']; // Simplified for now, or fetch from separate endpoint
 
     return (
         <Box className="fade-in">

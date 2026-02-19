@@ -8,7 +8,7 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
             <Typography variant="h6" gutterBottom display="flex" alignItems="center" color="primary" sx={{ mb: 3 }}>
                 <PersonAddIcon sx={{ mr: 1.5 }} /> Student Enrollment
             </Typography>
-            <Grid container spacing={3}>
+            <Grid container spacing={3} alignItems="center">
                 <Grid item xs={12}>
                     <TextField fullWidth label="Full Name" variant="outlined" value={studentName} onChange={(e) => setStudentName(e.target.value)} />
                 </Grid>
@@ -30,7 +30,7 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
                         variant="contained"
                         size="large"
                         onClick={onRegister}
-                        sx={{ mt: 2, py: 1.5, borderRadius: 1 }}
+                        sx={{ py: 1.5, borderRadius: 1 }}
                     >
                         Register Candidate
                     </Button>

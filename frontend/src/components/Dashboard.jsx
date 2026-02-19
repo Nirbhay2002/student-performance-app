@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, Chip, Grid } from '@mui/material';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 import { studentService } from '../services/studentService';
+import { downloadPDF } from '../utils';
 
 // Sub-components
 import StatsCards from './dashboard/StatsCards';
@@ -40,13 +39,7 @@ const Dashboard = ({ navigate }) => {
 
   const downloadReport = () => {
     if (!selectedReport) return;
-    const input = document.getElementById('report-card');
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      pdf.addImage(imgData, 'PNG', 0, 0);
-      pdf.save(`${selectedReport.name}_Report.pdf`);
-    });
+    downloadPDF('report-card', `${selectedReport.name}_Report`);
   };
 
   const sendEmail = () => {

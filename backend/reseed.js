@@ -22,7 +22,7 @@ const seed = async () => {
         const lastNames = ['Sharma', 'Patel', 'Singh', 'Rao', 'Kumar', 'Malhotra', 'Khan', 'Reddy', 'Gupta', 'Joshi', 'Mehta', 'Nair', 'Jain', 'Verma', 'Desai', 'Ahmed', 'Pillai', 'Sen', 'Pant', 'Shah', 'Pandey', 'Chopra', 'Kapoor', 'Iyer', 'Bose', 'Das', 'Mishra', 'Yadav', 'Thakur', 'Kulkarni'];
         const trends = ['high', 'average', 'improving', 'declining', 'struggling', 'random'];
         const streams = ['Medical', 'Non-Medical'];
-        const batches = ['A1', 'A2', 'B1', 'B2', 'C1'];
+        const batches = ['Growth', 'Excel', 'Conquer'];
 
         console.log('🌱 Generating 600 students...');
 

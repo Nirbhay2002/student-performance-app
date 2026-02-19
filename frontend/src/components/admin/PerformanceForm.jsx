@@ -13,7 +13,7 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
             <Typography variant="h6" gutterBottom display="flex" alignItems="center" sx={{ mb: 3 }}>
                 <GradeIcon sx={{ mr: 1.5, color: '#c5a059' }} /> Performance Data Input
             </Typography>
-            <Grid container spacing={3}>
+            <Grid container spacing={3} alignItems="center">
                 <Grid item xs={12}>
                     <TextField
                         fullWidth
@@ -21,7 +21,6 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         label="Select Enrolled Student"
                         value={selectedStudent}
                         onChange={(e) => setSelectedStudent(e.target.value)}
-                        sx={{ mb: 1 }}
                     >
                         {students.map(s => <MenuItem key={s._id} value={s._id}>{s.name} (Roll: {s.rollNumber})</MenuItem>)}
                     </TextField>
@@ -54,7 +53,7 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         startIcon={<SaveIcon />}
                         onClick={onSave}
                         disabled={!selectedStudent}
-                        sx={{ mt: 2, py: 1.5, borderRadius: 1, color: '#fff', fontWeight: 800 }}
+                        sx={{ py: 1.5, borderRadius: 1, color: '#fff', fontWeight: 800 }}
                     >
                         Publish Performance Record
                     </Button>
