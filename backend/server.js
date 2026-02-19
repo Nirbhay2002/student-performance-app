@@ -40,11 +40,12 @@ async function startServer() {
         const search = req.query.search || '';
         const stream = req.query.stream || 'All';
         const batch = req.query.batch || 'All';
+        const category = req.query.category || 'All';
         // Fix: handle '0' correctly by checking for undefined/empty string explicitly
         const minScore = (req.query.minScore !== undefined && req.query.minScore !== '') ? parseFloat(req.query.minScore) : null;
         const maxScore = (req.query.maxScore !== undefined && req.query.maxScore !== '') ? parseFloat(req.query.maxScore) : null;
 
-        console.log(`🔍 Filter Request: Stream=${stream}, Batch=${batch}, Min=${minScore}, Max=${maxScore}`);
+        console.log(`🔍 Filter Request: Stream=${stream}, Batch=${batch}, Category=${category}, Min=${minScore}, Max=${maxScore}`);
 
         const query = {};
         if (search) {
@@ -55,6 +56,7 @@ async function startServer() {
         }
         if (stream !== 'All') query.stream = stream;
         if (batch !== 'All') query.batch = batch;
+        if (category !== 'All') query.category = category;
 
         if (minScore !== null && maxScore !== null) {
           // Fix: Logic to match Chart (Exclusive upper bound, except for 100)

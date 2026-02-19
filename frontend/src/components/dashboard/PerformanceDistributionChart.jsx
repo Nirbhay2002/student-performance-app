@@ -34,7 +34,11 @@ const PerformanceDistributionChart = ({ students, navigate }) => {
 
     const handleBarClick = (data) => {
         if (navigate && data) {
-            navigate(1, { performanceMin: data.min, performanceMax: data.max });
+            let category = 'Worst';
+            if (data.max === 100) category = 'Best';
+            else if (data.max === 80) category = 'Medium';
+
+            navigate(1, { category });
         }
     };
 

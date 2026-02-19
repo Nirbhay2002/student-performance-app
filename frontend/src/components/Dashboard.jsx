@@ -83,7 +83,7 @@ const Dashboard = ({ navigate }) => {
         />
       </Box>
 
-      <StatsCards students={students} />
+      <StatsCards students={students} navigate={navigate} />
 
       <Grid container spacing={4}>
         <Grid item xs={12} lg={8}>

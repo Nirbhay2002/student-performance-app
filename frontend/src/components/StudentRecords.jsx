@@ -34,8 +34,7 @@ const StudentRecords = ({ navParams }) => {
     const [searchName, setSearchName] = useState('');
     const [filterStream, setFilterStream] = useState('All');
     const [filterBatch, setFilterBatch] = useState('All');
-    const [filterMinScore, setFilterMinScore] = useState(navParams?.performanceMin ?? null);
-    const [filterMaxScore, setFilterMaxScore] = useState(navParams?.performanceMax ?? null);
+    const [filterCategory, setFilterCategory] = useState(navParams?.category || 'All');
 
     // Pagination
     const [page, setPage] = useState(0);
@@ -58,19 +57,22 @@ const StudentRecords = ({ navParams }) => {
 
     // Handle Navigation Params Updates (if component is already mounted)
     useEffect(() => {
-        if (navParams?.performanceMin !== undefined && navParams?.performanceMax !== undefined) {
-            // Only update if different to avoid loop/redundant fetch
-            if (navParams.performanceMin !== filterMinScore || navParams.performanceMax !== filterMaxScore) {
-                setFilterMinScore(navParams.performanceMin);
-                setFilterMaxScore(navParams.performanceMax);
-                setPage(0);
+        if (navParams) {
+            let changed = false;
+
+            // Category Filter
+            if (navParams.category && navParams.category !== filterCategory) {
+                setFilterCategory(navParams.category);
+                changed = true;
             }
+
+            if (changed) setPage(0);
         }
     }, [navParams]);
 
     useEffect(() => {
         fetchStudents();
-    }, [page, rowsPerPage, debouncedSearch, filterStream, filterBatch, filterMinScore, filterMaxScore]);
+    }, [page, rowsPerPage, debouncedSearch, filterStream, filterBatch, filterCategory]);
 
     const fetchStudents = async () => {
         try {
@@ -81,8 +83,7 @@ const StudentRecords = ({ navParams }) => {
                 search: debouncedSearch,
                 stream: filterStream,
                 batch: filterBatch,
-                minScore: filterMinScore,
-                maxScore: filterMaxScore
+                category: filterCategory
             });
             setStudents(data.students);
             setTotal(data.total);
@@ -156,21 +157,12 @@ const StudentRecords = ({ navParams }) => {
                         Comprehensive database of enrolled students and academic performance.
                     </Typography>
                 </Box>
-                {filterMinScore !== null && (
-                    <Chip
-                        label={`Filtering: Score ${filterMinScore}% - ${filterMaxScore}%`}
-                        onDelete={clearPerformanceFilter}
-                        color="primary"
-                        variant="outlined"
-                        sx={{ fontWeight: 700 }}
-                    />
-                )}
             </Box>
 
             {/* Filters */}
             <Paper sx={{ p: 3, mb: 4, borderRadius: 1.5, border: '1px solid #f0f0f0' }}>
                 <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={4}>
                         <TextField
                             fullWidth
                             placeholder="Search by name or roll number..."
@@ -185,7 +177,7 @@ const StudentRecords = ({ navParams }) => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={6} md={3}>
+                    <Grid item xs={6} md={2}>
                         <TextField
                             fullWidth
                             select
@@ -198,7 +190,7 @@ const StudentRecords = ({ navParams }) => {
                             <MenuItem value="Non-Medical">Non-Medical (PCM)</MenuItem>
                         </TextField>
                     </Grid>
-                    <Grid item xs={6} md={3}>
+                    <Grid item xs={6} md={2}>
                         <TextField
                             fullWidth
                             select
@@ -209,6 +201,20 @@ const StudentRecords = ({ navParams }) => {
                             {batches.map(b => (
                                 <MenuItem key={b} value={b}>{b === 'All' ? 'All Batches' : b}</MenuItem>
                             ))}
+                        </TextField>
+                    </Grid>
+                    <Grid item xs={6} md={4}>
+                        <TextField
+                            fullWidth
+                            select
+                            label="Performance Category"
+                            value={filterCategory}
+                            onChange={(e) => { setFilterCategory(e.target.value); setPage(0); }}
+                        >
+                            <MenuItem value="All">All Categories</MenuItem>
+                            <MenuItem value="Best">Best (Elite)</MenuItem>
+                            <MenuItem value="Medium">Medium</MenuItem>
+                            <MenuItem value="Worst">Worst</MenuItem>
                         </TextField>
                     </Grid>
                 </Grid>
