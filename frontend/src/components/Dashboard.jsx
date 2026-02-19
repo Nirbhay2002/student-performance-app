@@ -10,7 +10,7 @@ import PerformanceDistributionChart from './dashboard/PerformanceDistributionCha
 import StudentIntelligenceList from './dashboard/StudentIntelligenceList';
 import ReportCardModal from './dashboard/ReportCardModal';
 
-const Dashboard = () => {
+const Dashboard = ({ navigate }) => {
   const [students, setStudents] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [reportData, setReportData] = useState(null);
@@ -87,7 +87,7 @@ const Dashboard = () => {
 
       <Grid container spacing={4}>
         <Grid item xs={12} lg={8}>
-          <PerformanceDistributionChart students={students} />
+          <PerformanceDistributionChart students={students} navigate={navigate} />
         </Grid>
         <Grid item xs={12} lg={4}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>

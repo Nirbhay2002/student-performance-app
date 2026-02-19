@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Paper, Typography, Box, useTheme } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const PerformanceDistributionChart = ({ students }) => {
+const PerformanceDistributionChart = ({ students, navigate }) => {
     const theme = useTheme();
 
     const distributionData = useMemo(() => {
@@ -25,13 +25,21 @@ const PerformanceDistributionChart = ({ students }) => {
             return {
                 name: b.label,
                 count,
-                color: b.color
+                color: b.color,
+                min: b.min,
+                max: b.max
             };
         });
     }, [students]);
 
+    const handleBarClick = (data) => {
+        if (navigate && data) {
+            navigate(1, { performanceMin: data.min, performanceMax: data.max });
+        }
+    };
+
     return (
-        <Paper sx={{ p: 3, borderRadius: 1.5, height: '450px', width: '650px', display: 'flex', flexDirection: 'column', border: '1px solid #f0f0f0' }}>
+        <Paper sx={{ p: 3, borderRadius: 1.5, height: '450px', width: '550px', display: 'flex', flexDirection: 'column', border: '1px solid #f0f0f0' }}>
             <Box sx={{ mb: 2 }}>
                 <Typography variant="h6" fontWeight={800} color="primary">Performance Distribution</Typography>
                 <Typography variant="body2" color="textSecondary">Distribution of {students.length} students across score brackets</Typography>
@@ -60,6 +68,8 @@ const PerformanceDistributionChart = ({ students }) => {
                             dataKey="count"
                             radius={[8, 8, 0, 0]}
                             barSize={60}
+                            onClick={handleBarClick}
+                            cursor="pointer"
                         >
                             {distributionData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={entry.color} />

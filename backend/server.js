@@ -40,6 +40,11 @@ async function startServer() {
         const search = req.query.search || '';
         const stream = req.query.stream || 'All';
         const batch = req.query.batch || 'All';
+        // Fix: handle '0' correctly by checking for undefined/empty string explicitly
+        const minScore = (req.query.minScore !== undefined && req.query.minScore !== '') ? parseFloat(req.query.minScore) : null;
+        const maxScore = (req.query.maxScore !== undefined && req.query.maxScore !== '') ? parseFloat(req.query.maxScore) : null;
+
+        console.log(`🔍 Filter Request: Stream=${stream}, Batch=${batch}, Min=${minScore}, Max=${maxScore}`);
 
         const query = {};
         if (search) {
@@ -50,6 +55,21 @@ async function startServer() {
         }
         if (stream !== 'All') query.stream = stream;
         if (batch !== 'All') query.batch = batch;
+
+        if (minScore !== null && maxScore !== null) {
+          // Fix: Logic to match Chart (Exclusive upper bound, except for 100)
+          // 80-100 -> >=80 and <=100
+          // 60-80 -> >=60 and <80
+          if (maxScore === 100) {
+            query.performanceScore = { $gte: minScore, $lte: maxScore };
+          } else {
+            query.performanceScore = { $gte: minScore, $lt: maxScore };
+          }
+        } else if (minScore !== null) {
+          query.performanceScore = { $gte: minScore };
+        } else if (maxScore !== null) {
+          query.performanceScore = { $lte: maxScore };
+        }
 
         if (page === null) {
           // Dashboard optimization: fetch ALL relevant fields directly from Student model

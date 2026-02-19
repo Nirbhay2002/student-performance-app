@@ -7,12 +7,23 @@ import './App.css';
 function App() {
   const [tabValue, setTabValue] = useState(0);
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+
 
   // Find the active component from routes
   const ActiveComponent = routes.find(r => r.id === tabValue)?.component || (() => null);
+
+  // Navigation Parameters State
+  const [navParams, setNavParams] = useState({});
+
+  const handleNavigate = (tabId, params = {}) => {
+    setNavParams(params);
+    setTabValue(tabId);
+  };
+
+  const onTabClick = (event, newValue) => {
+    setTabValue(newValue);
+    setNavParams({}); // Clear params on manual tab switch
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -24,7 +35,7 @@ function App() {
           </Typography>
           <Tabs
             value={tabValue}
-            onChange={handleTabChange}
+            onChange={onTabClick}
             className="nav-tabs"
             sx={{ display: { xs: 'none', sm: 'block' } }}
           >
@@ -42,7 +53,7 @@ function App() {
         </Toolbar>
         <Tabs
           value={tabValue}
-          onChange={handleTabChange}
+          onChange={onTabClick}
           variant="fullWidth"
           className="nav-tabs"
           sx={{ display: { xs: 'block', sm: 'none' } }}
@@ -59,7 +70,7 @@ function App() {
 
       <div className="app-container">
         <Box className="fade-in">
-          <ActiveComponent />
+          <ActiveComponent navigate={handleNavigate} navParams={navParams} />
         </Box>
       </div>
     </ThemeProvider>

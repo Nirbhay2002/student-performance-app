@@ -25,7 +25,7 @@ import ReportCardModal from './dashboard/ReportCardModal';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const StudentRecords = () => {
+const StudentRecords = ({ navParams }) => {
     const [students, setStudents] = useState([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -34,6 +34,8 @@ const StudentRecords = () => {
     const [searchName, setSearchName] = useState('');
     const [filterStream, setFilterStream] = useState('All');
     const [filterBatch, setFilterBatch] = useState('All');
+    const [filterMinScore, setFilterMinScore] = useState(navParams?.performanceMin ?? null);
+    const [filterMaxScore, setFilterMaxScore] = useState(navParams?.performanceMax ?? null);
 
     // Pagination
     const [page, setPage] = useState(0);
@@ -54,9 +56,21 @@ const StudentRecords = () => {
         return () => clearTimeout(timer);
     }, [searchName]);
 
+    // Handle Navigation Params Updates (if component is already mounted)
+    useEffect(() => {
+        if (navParams?.performanceMin !== undefined && navParams?.performanceMax !== undefined) {
+            // Only update if different to avoid loop/redundant fetch
+            if (navParams.performanceMin !== filterMinScore || navParams.performanceMax !== filterMaxScore) {
+                setFilterMinScore(navParams.performanceMin);
+                setFilterMaxScore(navParams.performanceMax);
+                setPage(0);
+            }
+        }
+    }, [navParams]);
+
     useEffect(() => {
         fetchStudents();
-    }, [page, rowsPerPage, debouncedSearch, filterStream, filterBatch]);
+    }, [page, rowsPerPage, debouncedSearch, filterStream, filterBatch, filterMinScore, filterMaxScore]);
 
     const fetchStudents = async () => {
         try {
@@ -66,7 +80,9 @@ const StudentRecords = () => {
                 limit: rowsPerPage,
                 search: debouncedSearch,
                 stream: filterStream,
-                batch: filterBatch
+                batch: filterBatch,
+                minScore: filterMinScore,
+                maxScore: filterMaxScore
             });
             setStudents(data.students);
             setTotal(data.total);
@@ -75,6 +91,12 @@ const StudentRecords = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const clearPerformanceFilter = () => {
+        setFilterMinScore(null);
+        setFilterMaxScore(null);
+        setPage(0);
     };
 
     const handleOpenReport = async (student) => {
@@ -125,13 +147,24 @@ const StudentRecords = () => {
 
     return (
         <Box className="fade-in">
-            <Box sx={{ mb: 4 }}>
-                <Typography variant="h4" color="primary" gutterBottom sx={{ fontWeight: 800 }}>
-                    Student Records
-                </Typography>
-                <Typography variant="body1" color="textSecondary">
-                    Comprehensive database of enrolled students and academic performance.
-                </Typography>
+            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Box>
+                    <Typography variant="h4" color="primary" gutterBottom sx={{ fontWeight: 800 }}>
+                        Student Records
+                    </Typography>
+                    <Typography variant="body1" color="textSecondary">
+                        Comprehensive database of enrolled students and academic performance.
+                    </Typography>
+                </Box>
+                {filterMinScore !== null && (
+                    <Chip
+                        label={`Filtering: Score ${filterMinScore}% - ${filterMaxScore}%`}
+                        onDelete={clearPerformanceFilter}
+                        color="primary"
+                        variant="outlined"
+                        sx={{ fontWeight: 700 }}
+                    />
+                )}
             </Box>
 
             {/* Filters */}
