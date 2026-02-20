@@ -27,7 +27,7 @@ const StudentIntelligenceList = ({ title, students, onStudentClick, getCategoryC
                         <Box>
                             <Typography variant="body1" fontWeight={700}>{s.name}</Typography>
                             <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block' }}>
-                                Avg: {s?.averageMarks?.toFixed(1)} / 300
+                                Academic: {s?.averageMarks?.toFixed(1)}%
                             </Typography>
                         </Box>
                         <Box sx={{ textAlign: 'right' }}>

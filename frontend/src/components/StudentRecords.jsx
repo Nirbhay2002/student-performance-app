@@ -227,7 +227,7 @@ const StudentRecords = ({ navParams }) => {
                             <TableCell sx={{ color: 'white', fontWeight: 700 }}>Stream</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 700 }}>Batch</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Performance</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Avg Marks</TableCell>
+                            <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Rank</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -269,8 +269,8 @@ const StudentRecords = ({ navParams }) => {
                                     />
                                 </TableCell>
                                 <TableCell align="center">
-                                    <Typography variant="body2" fontWeight={700}>
-                                        {student.averageMarks?.toFixed(1)}
+                                    <Typography variant="body2" fontWeight={700} color="primary.main">
+                                        #{student.rank || '-'}
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="center">

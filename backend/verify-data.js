@@ -15,13 +15,13 @@ async function verify() {
 
         for (const student of students) {
             const marks = await Marks.find({ studentId: student._id });
-            const score = calculatePerformance(marks);
-            const avg = calculateAverageMarks(marks);
+            const score = calculatePerformance(marks, student.stream);
+            const avg = calculateAverageMarks(marks, student.stream);
             const category = getCategory(score);
 
             distribution[category]++;
 
-            console.log(`[${category.padEnd(6)}] ${student.name.padEnd(20)} | Avg: ${avg.toFixed(1)}% | Perf: ${score.toFixed(1)}`);
+            console.log(`[${category.padEnd(6)}] ${student.name.padEnd(20)} (${student.stream}) | Avg: ${avg.toFixed(1)}% | Perf: ${score.toFixed(1)}`);
         }
 
         console.log('\nCategory Distribution:');

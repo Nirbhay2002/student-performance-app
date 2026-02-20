@@ -9,36 +9,26 @@ const PerformanceDistributionChart = ({ students, navigate }) => {
         if (!students.length) return [];
 
         const brackets = [
-            { label: '0-20%', min: 0, max: 20, color: '#ea4335' },
-            { label: '20-40%', min: 20, max: 40, color: '#fb8c00' },
-            { label: '40-60%', min: 40, max: 60, color: '#fbbc05' },
-            { label: '60-80%', min: 60, max: 80, color: '#1a73e8' },
-            { label: '80-100%', min: 80, max: 100, color: '#34a853' }
+            { label: 'Worst (Bottom 25%)', color: '#ea4335', category: 'Worst' },
+            { label: 'Medium (Middle 50%)', color: '#fbbc05', category: 'Medium' },
+            { label: 'Best (Top 25%)', color: '#34a853', category: 'Best' }
         ];
 
         return brackets.map(b => {
-            const count = students.filter(s => {
-                const score = s.performanceScore || 0;
-                return score >= b.min && (b.max === 100 ? score <= b.max : score < b.max);
-            }).length;
+            const count = students.filter(s => s.category === b.category).length;
 
             return {
                 name: b.label,
                 count,
                 color: b.color,
-                min: b.min,
-                max: b.max
+                category: b.category
             };
         });
     }, [students]);
 
     const handleBarClick = (data) => {
-        if (navigate && data) {
-            let category = 'Worst';
-            if (data.max === 100) category = 'Best';
-            else if (data.max === 80) category = 'Medium';
-
-            navigate(1, { category });
+        if (navigate && data && data.category) {
+            navigate(1, { category: data.category });
         }
     };
 

@@ -13,6 +13,7 @@ const seed = async () => {
 
         const Student = require('./models/Student');
         const Marks = require('./models/Marks');
+        const { calculatePerformance, calculateAverageMarks, recalculateAllCategories } = require('./logic/ranking');
 
         await Student.deleteMany({});
         await Marks.deleteMany({});
@@ -32,8 +33,6 @@ const seed = async () => {
             'October Unit Test', 'November Unit Test', 'December Mid-Term',
             'January Unit Test', 'February Unit Test', 'March Final Exam'
         ];
-
-        const { calculatePerformance, getCategory, calculateAverageMarks } = require('./logic/ranking');
 
         for (let i = 1; i <= 600; i++) {
             const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
@@ -58,8 +57,6 @@ const seed = async () => {
             await student.save();
 
             let examRecords = [];
-            let totalPerfScore = 0;
-            let totalAvgMarks = 0;
 
             for (let j = 0; j < exams.length; j++) {
                 let baseScore;
@@ -94,18 +91,19 @@ const seed = async () => {
             await Marks.insertMany(examRecords);
 
             // Calculate overall performance once for seeding
-            const perfScore = calculatePerformance(examRecords);
-            const avgMarks = calculateAverageMarks(examRecords);
-            const cat = getCategory(perfScore);
+            const perfScore = calculatePerformance(examRecords, stream);
+            const avgMarks = calculateAverageMarks(examRecords, stream);
 
             await Student.findByIdAndUpdate(student._id, {
                 performanceScore: perfScore,
-                averageMarks: avgMarks,
-                category: cat
+                averageMarks: avgMarks
             });
 
             if (i % 50 === 0) console.log(`🚀 Progress: ${i}/600 students seeded...`);
         }
+
+        console.log('🔄 Recalculating Percentile Categories...');
+        await recalculateAllCategories(Student);
 
         console.log('\n✨ RESEED COMPLETE: 600 Students generated with full exam history.');
         process.exit(0);

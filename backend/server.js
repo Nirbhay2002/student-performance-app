@@ -26,7 +26,7 @@ async function startServer() {
     // ONLY LOAD MODELS AFTER CONNECTION
     const Student = require('./models/Student');
     const Marks = require('./models/Marks');
-    const { calculatePerformance, getCategory, calculateAverageMarks } = require('./logic/ranking');
+    const { calculatePerformance, calculateAverageMarks, recalculateAllCategories } = require('./logic/ranking');
 
     // --- HEALTH CHECK ---
     app.get('/health', (req, res) => res.json({ status: 'UP' }));
@@ -75,16 +75,21 @@ async function startServer() {
 
         if (page === null) {
           // Dashboard optimization: fetch ALL relevant fields directly from Student model
-          // This avoids N+1 marks queries and is very fast even for 1000+ students
           const students = await Student.find(query).lean();
           return res.json({ students, total: students.length });
         }
 
         const total = await Student.countDocuments(query);
-        const students = await Student.find(query)
+        const studentsRaw = await Student.find(query)
           .skip(page * limit)
           .limit(limit)
           .lean();
+
+        // Calculate Rank for each student (Global Rank)
+        const students = await Promise.all(studentsRaw.map(async (s) => {
+          const higherScores = await Student.countDocuments({ performanceScore: { $gt: s.performanceScore || 0 } });
+          return { ...s, rank: higherScores + 1 };
+        }));
 
         res.json({
           students,
@@ -132,18 +137,28 @@ async function startServer() {
         const mark = new Marks({ studentId, ...markData });
         await mark.save();
 
-        const allMarks = await Marks.find({ studentId });
-        const score = calculatePerformance(allMarks);
-        const avgMarks = calculateAverageMarks(allMarks);
-        const category = getCategory(score);
+        const student = await Student.findById(studentId);
+        if (!student) return res.status(404).json({ error: 'Student not found' });
 
+        const allMarks = await Marks.find({ studentId });
+        const score = calculatePerformance(allMarks, student.stream);
+        const avgMarks = calculateAverageMarks(allMarks, student.stream);
         await Student.findByIdAndUpdate(studentId, {
           performanceScore: score,
-          averageMarks: avgMarks,
-          category: category
+          averageMarks: avgMarks
         });
 
-        res.json({ mark, performanceScore: score, averageMarks: avgMarks, category });
+        // Recalculate categories for ALL students to maintain percentile distribution
+        await recalculateAllCategories(Student);
+
+        const updatedStudent = await Student.findById(studentId);
+
+        res.json({
+          mark,
+          performanceScore: score,
+          averageMarks: avgMarks,
+          category: updatedStudent.category
+        });
       } catch (err) {
         res.status(500).json({ error: err.message });
       }

@@ -21,8 +21,8 @@ const StatsCards = ({ students, navigate }) => {
         },
         {
             label: 'Average Score',
-            value: avgScore,
-            caption: 'OUT OF 300 MARKS',
+            value: avgScore + '%',
+            caption: 'AVERAGE PERCENTAGE',
             icon: <TrendingUpIcon sx={{ fontSize: 32 }} />,
             gradient: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
             color: 'success.main'
