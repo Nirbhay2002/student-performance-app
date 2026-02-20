@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Chip, Grid } from '@mui/material';
+import { Box, Typography, Chip, Grid, CircularProgress } from '@mui/material';
 import { studentService } from '../services/studentService';
 import { downloadPDF } from '../utils';
 
@@ -13,27 +13,35 @@ const Dashboard = ({ navigate }) => {
   const [students, setStudents] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [reportData, setReportData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isReportLoading, setIsReportLoading] = useState(false);
 
   useEffect(() => {
     fetchStudents();
   }, []);
 
   const fetchStudents = async () => {
+    setIsLoading(true);
     try {
       const data = await studentService.getAllStudents();
       setStudents(data.students);
     } catch (err) {
       alert(`Failed to load students: ${err.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleOpenReport = async (student) => {
+    setIsReportLoading(true);
     try {
       const data = await studentService.getStudentPerformance(student._id);
       setReportData(data);
       setSelectedReport(student);
     } catch (err) {
       alert(`Failed to load report: ${err.message}`);
+    } finally {
+      setIsReportLoading(false);
     }
   };
 
@@ -60,6 +68,14 @@ const Dashboard = ({ navigate }) => {
   const sortedStudents = [...students].sort((a, b) => (b.performanceScore || 0) - (a.performanceScore || 0));
   const top10 = sortedStudents.slice(0, 10);
   const bottom10 = sortedStudents.slice(-10).reverse();
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress size={60} thickness={4} color="primary" />
+      </Box>
+    );
+  }
 
   return (
     <Box className="fade-in">
@@ -109,6 +125,7 @@ const Dashboard = ({ navigate }) => {
         onClose={() => setSelectedReport(null)}
         selectedReport={selectedReport}
         reportData={reportData}
+        isReportLoading={isReportLoading}
         getCategoryColor={getCategoryColor}
         onDownload={downloadReport}
         onSendEmail={sendEmail}

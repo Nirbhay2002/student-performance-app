@@ -1,9 +1,9 @@
 import React from 'react';
-import { Card, Typography, Grid, TextField, MenuItem, Button } from '@mui/material';
+import { Card, Typography, Grid, TextField, MenuItem, Button, CircularProgress } from '@mui/material';
 import GradeIcon from '@mui/icons-material/Grade';
 import SaveIcon from '@mui/icons-material/Save';
 
-const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks, setMarks, onSave }) => {
+const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks, setMarks, onSave, isLoading }) => {
     const handleChange = (field) => (e) => {
         setMarks({ ...marks, [field]: e.target.value });
     };
@@ -50,12 +50,12 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         variant="contained"
                         color="secondary"
                         size="large"
-                        startIcon={<SaveIcon />}
+                        startIcon={!isLoading && <SaveIcon />}
                         onClick={onSave}
-                        disabled={!selectedStudent}
+                        disabled={!selectedStudent || isLoading}
                         sx={{ py: 1.5, borderRadius: 1, color: '#fff', fontWeight: 800 }}
                     >
-                        Publish Performance Record
+                        {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Publish Performance Record'}
                     </Button>
                 </Grid>
             </Grid>

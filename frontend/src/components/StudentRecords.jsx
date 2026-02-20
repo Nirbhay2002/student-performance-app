@@ -15,7 +15,8 @@ import {
     Chip,
     InputAdornment,
     IconButton,
-    Grid
+    Grid,
+    CircularProgress
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -42,6 +43,7 @@ const StudentRecords = ({ navParams }) => {
     // Report Modal
     const [selectedReport, setSelectedReport] = useState(null);
     const [reportData, setReportData] = useState(null);
+    const [isReportLoading, setIsReportLoading] = useState(false);
 
     // Debounced search
     const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -100,12 +102,15 @@ const StudentRecords = ({ navParams }) => {
     };
 
     const handleOpenReport = async (student) => {
+        setIsReportLoading(true);
         try {
             const data = await studentService.getStudentPerformance(student._id);
             setReportData(data);
             setSelectedReport(student);
         } catch (err) {
             alert(`Failed to load report: ${err.message}`);
+        } finally {
+            setIsReportLoading(false);
         }
     };
 
@@ -217,7 +222,7 @@ const StudentRecords = ({ navParams }) => {
             <TableContainer component={Paper} sx={{ borderRadius: 1.5, border: '1px solid #f0f0f0', overflow: 'hidden', position: 'relative' }}>
                 {loading && (
                     <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, bgcolor: 'rgba(255,255,255,0.7)', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Typography color="primary" variant="h6">Loading...</Typography>
+                        <CircularProgress />
                     </Box>
                 )}
                 <Table>
@@ -304,6 +309,7 @@ const StudentRecords = ({ navParams }) => {
                 onClose={() => setSelectedReport(null)}
                 selectedReport={selectedReport}
                 reportData={reportData}
+                isReportLoading={isReportLoading}
                 getCategoryColor={getCategoryColor}
                 onDownload={downloadReport}
                 onSendEmail={sendEmail}

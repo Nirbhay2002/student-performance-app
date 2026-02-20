@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, Typography, Grid, TextField, MenuItem, Button } from '@mui/material';
+import { Card, Typography, Grid, TextField, MenuItem, Button, CircularProgress } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, stream, setStream, onRegister }) => {
+const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, stream, setStream, onRegister, isLoading }) => {
     return (
         <Card className="glass-card" sx={{ p: 4, height: '100%' }}>
             <Typography variant="h6" gutterBottom display="flex" alignItems="center" color="primary" sx={{ mb: 3 }}>
@@ -30,9 +30,10 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
                         variant="contained"
                         size="large"
                         onClick={onRegister}
+                        disabled={isLoading}
                         sx={{ py: 1.5, borderRadius: 1 }}
                     >
-                        Register Candidate
+                        {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Register Candidate'}
                     </Button>
                 </Grid>
             </Grid>

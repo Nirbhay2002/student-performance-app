@@ -26,6 +26,8 @@ const AdminPanel = () => {
 
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [isSavingMarks, setIsSavingMarks] = useState(false);
 
   useEffect(() => {
     fetchStudents();
@@ -41,6 +43,7 @@ const AdminPanel = () => {
   };
 
   const handleRegister = async () => {
+    setIsRegistering(true);
     try {
       await studentService.registerStudent({ name: studentName, rollNumber, email, batch, stream });
       setMsg('Student registered successfully!');
@@ -51,10 +54,13 @@ const AdminPanel = () => {
       setEmail('');
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsRegistering(false);
     }
   };
 
   const handleSaveMarks = async () => {
+    setIsSavingMarks(true);
     try {
       await studentService.saveMarks({
         studentId: selectedStudent,
@@ -78,6 +84,8 @@ const AdminPanel = () => {
       });
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSavingMarks(false);
     }
   };
 
@@ -102,6 +110,7 @@ const AdminPanel = () => {
             stream={stream}
             setStream={setStream}
             onRegister={handleRegister}
+            isLoading={isRegistering}
           />
         </Grid>
 
@@ -113,6 +122,7 @@ const AdminPanel = () => {
             marks={marks}
             setMarks={setMarks}
             onSave={handleSaveMarks}
+            isLoading={isSavingMarks}
           />
         </Grid>
       </Grid>

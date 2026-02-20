@@ -4,8 +4,9 @@ import DownloadIcon from '@mui/icons-material/Download';
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
 import SubjectTrendChart from './SubjectTrendChart';
+import CircularProgress from '@mui/material/CircularProgress';
 
-const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategoryColor, onDownload, onSendEmail }) => {
+const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLoading, getCategoryColor, onDownload, onSendEmail }) => {
     const [startDate, setStartDate] = React.useState('');
     const [endDate, setEndDate] = React.useState('');
     const [activePreset, setActivePreset] = React.useState('all');
@@ -114,8 +115,12 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, getCategor
                     <Button startIcon={<SendIcon />} variant="contained" onClick={onSendEmail} sx={{ borderRadius: 1 }}>Notify Parent</Button>
                 </Box>
             </DialogTitle>
-            <DialogContent sx={{ p: 4, bgcolor: '#fbfbfb' }}>
-                {reportData && (
+            <DialogContent sx={{ p: 4, bgcolor: '#fbfbfb', minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
+                {isReportLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, height: '100%' }}>
+                        <CircularProgress size={50} color="primary" />
+                    </Box>
+                ) : reportData && (
                     <Box id="report-card" className="fade-in" sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 1.5, bgcolor: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                         <Box sx={{ textAlign: 'center', mb: 4 }}>
                             <Typography variant="h5" fontWeight={900} color="primary" sx={{ letterSpacing: 2 }}>STUDENT<span style={{ color: '#c5a059' }}>PRO</span> ACADEMY</Typography>
