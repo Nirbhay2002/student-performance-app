@@ -21,6 +21,7 @@ const processBulkUpload = async (buffer) => {
 
         // We only update score here; categories are recalculated globally below
         await Student.findByIdAndUpdate(studentId, {
+            previousPerformanceScore: student.performanceScore,
             performanceScore: score,
             averageMarks: avgMarks
         });

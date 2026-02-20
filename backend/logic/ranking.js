@@ -93,14 +93,18 @@ const recalculateAllCategories = async (StudentModel) => {
   const bottom25Index = Math.floor(total * 0.75);
 
   const bulkOps = students.map((student, index) => {
+    const currentRank = index + 1;
     let category = 'Medium';
     if (index < top25Index) category = 'Best';
     else if (index >= bottom25Index) category = 'Worst';
 
+    const previousRank = student.currentRank || currentRank;
+    const bestRank = Math.min(student.bestRank || 999999, currentRank);
+
     return {
       updateOne: {
         filter: { _id: student._id },
-        update: { category }
+        update: { category, currentRank, previousRank, bestRank }
       }
     };
   });

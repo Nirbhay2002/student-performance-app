@@ -20,9 +20,10 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { studentService } from '../services/studentService';
 import ReportCardModal from './dashboard/ReportCardModal';
+import PerformanceModal from './dashboard/PerformanceModal';
 import { downloadPDF } from '../utils';
 
 const StudentRecords = ({ navParams }) => {
@@ -44,6 +45,9 @@ const StudentRecords = ({ navParams }) => {
     const [selectedReport, setSelectedReport] = useState(null);
     const [reportData, setReportData] = useState(null);
     const [isReportLoading, setIsReportLoading] = useState(false);
+
+    // Performance Modal
+    const [selectedPerformanceStudent, setSelectedPerformanceStudent] = useState(null);
 
     // Debounced search
     const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -241,8 +245,7 @@ const StudentRecords = ({ navParams }) => {
                             <TableRow
                                 key={student._id}
                                 hover
-                                onClick={() => handleOpenReport(student)}
-                                sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'rgba(26, 115, 232, 0.04)' } }}
+                                sx={{ '&:hover': { bgcolor: 'rgba(26, 115, 232, 0.04)' } }}
                             >
                                 <TableCell>
                                     <Typography variant="subtitle2" fontWeight={700}>{student.name}</Typography>
@@ -279,8 +282,8 @@ const StudentRecords = ({ navParams }) => {
                                     </Typography>
                                 </TableCell>
                                 <TableCell align="center">
-                                    <IconButton size="small" color="primary">
-                                        <VisibilityIcon />
+                                    <IconButton size="small" color="secondary" onClick={(e) => { e.stopPropagation(); setSelectedPerformanceStudent(student); }} title="View Performance Velocity">
+                                        <TrendingUpIcon />
                                     </IconButton>
                                 </TableCell>
                             </TableRow>
@@ -313,6 +316,12 @@ const StudentRecords = ({ navParams }) => {
                 getCategoryColor={getCategoryColor}
                 onDownload={downloadReport}
                 onSendEmail={sendEmail}
+            />
+
+            <PerformanceModal
+                open={!!selectedPerformanceStudent}
+                onClose={() => setSelectedPerformanceStudent(null)}
+                student={selectedPerformanceStudent}
             />
         </Box>
     );

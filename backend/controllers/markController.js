@@ -18,6 +18,7 @@ exports.addMark = async (req, res) => {
         const avgMarks = calculateAverageMarks(allMarks, student.stream);
 
         await Student.findByIdAndUpdate(studentId, {
+            previousPerformanceScore: student.performanceScore,
             performanceScore: score,
             averageMarks: avgMarks
         });

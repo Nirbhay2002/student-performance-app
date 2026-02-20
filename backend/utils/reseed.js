@@ -11,9 +11,9 @@ const seed = async () => {
         await mongoose.connect(MONGO_URI);
         console.log('✅ Connected');
 
-        const Student = require('./models/Student');
-        const Marks = require('./models/Marks');
-        const { calculatePerformance, calculateAverageMarks, recalculateAllCategories } = require('./logic/ranking');
+        const Student = require('../models/Student');
+        const Marks = require('../models/Marks');
+        const { calculatePerformance, calculateAverageMarks, recalculateAllCategories } = require('../logic/ranking');
 
         await Student.deleteMany({});
         await Marks.deleteMany({});
@@ -44,6 +44,14 @@ const seed = async () => {
             const rollPrefix = stream === 'Medical' ? 'M' : 'NM';
             const roll = `${rollPrefix}${i.toString().padStart(3, '0')}`;
 
+            const baseRank = Math.floor(Math.random() * 600) + 1;
+            const rankVariance = trend === 'improving' ? Math.floor(Math.random() * 50) + 10 :
+                trend === 'declining' ? -(Math.floor(Math.random() * 50) + 10) :
+                    Math.floor(Math.random() * 20) - 10;
+
+            const prevRank = Math.max(1, Math.min(600, baseRank + rankVariance));
+            const bestRankSimulated = Math.max(1, Math.min(baseRank, prevRank) - Math.floor(Math.random() * 30));
+
             const student = new Student({
                 name,
                 rollNumber: roll,
@@ -52,7 +60,13 @@ const seed = async () => {
                 stream,
                 performanceScore: 0,
                 averageMarks: 0,
-                category: 'Medium'
+                category: 'Medium',
+                currentRank: baseRank,
+                previousRank: prevRank,
+                bestRank: bestRankSimulated,
+                previousPerformanceScore: trend === 'improving' ? Math.random() * 60 :
+                    trend === 'declining' ? 70 + Math.random() * 20 :
+                        50 + Math.random() * 30
             });
             await student.save();
 
