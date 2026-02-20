@@ -245,7 +245,8 @@ const StudentRecords = ({ navParams }) => {
                             <TableRow
                                 key={student._id}
                                 hover
-                                sx={{ '&:hover': { bgcolor: 'rgba(26, 115, 232, 0.04)' } }}
+                                onClick={() => handleOpenReport(student)}
+                                sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'rgba(26, 115, 232, 0.04)' } }}
                             >
                                 <TableCell>
                                     <Typography variant="subtitle2" fontWeight={700}>{student.name}</Typography>
