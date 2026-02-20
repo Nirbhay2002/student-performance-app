@@ -10,14 +10,20 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
  */
 const SubjectTrendChart = ({ marks, stream }) => {
     // Transform marks data for the chart
-    const chartData = marks?.map(m => ({
-        date: new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
-        Physics: m.scores.physics,
-        Chemistry: m.scores.chemistry,
-        Elective: stream === 'Medical' ? m.scores.bio : m.scores.maths,
-        Attendance: m.attendance,
-        Total: m.totalScore
-    })); // Backend already sorts by date (oldest to newest)
+    const chartData = marks?.map(m => {
+        const pMax = m.maxScores?.physics || 100;
+        const cMax = m.maxScores?.chemistry || 100;
+        const eMax = stream === 'Medical' ? (m.maxScores?.bio || 100) : (m.maxScores?.maths || 100);
+
+        return {
+            date: new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }),
+            Physics: Math.round((m.scores.physics / pMax) * 100) || 0,
+            Chemistry: Math.round((m.scores.chemistry / cMax) * 100) || 0,
+            Elective: Math.round(((stream === 'Medical' ? m.scores.bio : m.scores.maths) / eMax) * 100) || 0,
+            Attendance: m.attendance,
+            Total: m.totalScore
+        };
+    }); // Backend already sorts by date (oldest to newest)
 
     if (!chartData || chartData.length === 0) {
         return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Grid, TextField, MenuItem, Button, CircularProgress } from '@mui/material';
+import { Card, Typography, Grid, TextField, MenuItem, Button, CircularProgress, Box } from '@mui/material';
 import GradeIcon from '@mui/icons-material/Grade';
 import SaveIcon from '@mui/icons-material/Save';
 
@@ -25,20 +25,32 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         {students.map(s => <MenuItem key={s._id} value={s._id}>{s.name} (Roll: {s.rollNumber})</MenuItem>)}
                     </TextField>
                 </Grid>
-                <Grid item xs={students.find(s => s._id === selectedStudent)?.stream === 'Medical' || students.find(s => s._id === selectedStudent)?.stream === 'Non-Medical' ? 4 : 12}>
-                    <TextField fullWidth label="Physics" type="number" value={marks.physics} onChange={handleChange('physics')} />
+                <Grid item xs={12} sm={4}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <TextField fullWidth label="Physics" type="number" value={marks.physics} onChange={handleChange('physics')} />
+                        <TextField fullWidth label="Max" type="number" value={marks.maxPhysics} onChange={handleChange('maxPhysics')} sx={{ maxWidth: 80 }} />
+                    </Box>
                 </Grid>
-                <Grid item xs={4}>
-                    <TextField fullWidth label="Chemistry" type="number" value={marks.chemistry} onChange={handleChange('chemistry')} />
+                <Grid item xs={12} sm={4}>
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                        <TextField fullWidth label="Chemistry" type="number" value={marks.chemistry} onChange={handleChange('chemistry')} />
+                        <TextField fullWidth label="Max" type="number" value={marks.maxChemistry} onChange={handleChange('maxChemistry')} sx={{ maxWidth: 80 }} />
+                    </Box>
                 </Grid>
                 {students.find(s => s._id === selectedStudent)?.stream === 'Non-Medical' && (
-                    <Grid item xs={4}>
-                        <TextField fullWidth label="Mathematics" type="number" value={marks.maths} onChange={handleChange('maths')} />
+                    <Grid item xs={12} sm={4}>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                            <TextField fullWidth label="Mathematics" type="number" value={marks.maths} onChange={handleChange('maths')} />
+                            <TextField fullWidth label="Max" type="number" value={marks.maxMaths} onChange={handleChange('maxMaths')} sx={{ maxWidth: 80 }} />
+                        </Box>
                     </Grid>
                 )}
                 {students.find(s => s._id === selectedStudent)?.stream === 'Medical' && (
-                    <Grid item xs={4}>
-                        <TextField fullWidth label="Biology" type="number" value={marks.bio} onChange={handleChange('bio')} />
+                    <Grid item xs={12} sm={4}>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                            <TextField fullWidth label="Biology" type="number" value={marks.bio} onChange={handleChange('bio')} />
+                            <TextField fullWidth label="Max" type="number" value={marks.maxBio} onChange={handleChange('maxBio')} sx={{ maxWidth: 80 }} />
+                        </Box>
                     </Grid>
                 )}
                 <Grid item xs={12}>

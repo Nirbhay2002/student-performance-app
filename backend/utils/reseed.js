@@ -95,6 +95,12 @@ const seed = async () => {
                         maths: stream === 'Non-Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
                         bio: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
                     },
+                    maxScores: {
+                        physics: 100,
+                        chemistry: 100,
+                        maths: stream === 'Non-Medical' ? 100 : 0,
+                        bio: stream === 'Medical' ? 100 : 0,
+                    },
                     attendance: Math.round(80 + Math.random() * 20),
                     remarks: `Auto-generated ${trend} trend`
                 });

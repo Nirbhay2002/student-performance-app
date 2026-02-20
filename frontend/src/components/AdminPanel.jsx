@@ -18,9 +18,13 @@ const AdminPanel = () => {
   const [selectedStudent, setSelectedStudent] = useState('');
   const [marks, setMarks] = useState({
     physics: '',
+    maxPhysics: '100',
     chemistry: '',
+    maxChemistry: '100',
     maths: '',
+    maxMaths: '100',
     bio: '',
+    maxBio: '100',
     attendance: '',
   });
 
@@ -70,6 +74,12 @@ const AdminPanel = () => {
           maths: Number(marks.maths || 0),
           bio: Number(marks.bio || 0)
         },
+        maxScores: {
+          physics: Number(marks.maxPhysics || 100),
+          chemistry: Number(marks.maxChemistry || 100),
+          maths: Number(marks.maxMaths || 100),
+          bio: Number(marks.maxBio || 100)
+        },
         attendance: Number(marks.attendance),
         examName: 'Monthly Test'
       });
@@ -77,9 +87,13 @@ const AdminPanel = () => {
       setOpen(true);
       setMarks({
         physics: '',
+        maxPhysics: '100',
         chemistry: '',
+        maxChemistry: '100',
         maths: '',
+        maxMaths: '100',
         bio: '',
+        maxBio: '100',
         attendance: '',
       });
     } catch (err) {

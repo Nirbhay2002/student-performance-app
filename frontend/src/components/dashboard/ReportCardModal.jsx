@@ -221,9 +221,15 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
                                     {paginatedMarks.map((m, idx) => (
                                         <TableRow key={idx} sx={{ '&:nth-of-type(even)': { bgcolor: '#fafafa' } }}>
                                             <TableCell sx={{ fontWeight: 600 }}>{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</TableCell>
-                                            <TableCell>{m.scores.physics}</TableCell>
-                                            <TableCell>{m.scores.chemistry}</TableCell>
-                                            <TableCell>{selectedReport?.stream === 'Medical' ? m.scores.bio : m.scores.maths}</TableCell>
+                                            <TableCell>{m.scores.physics} {m.maxScores?.physics ? `/ ${m.maxScores.physics}` : ''}</TableCell>
+                                            <TableCell>{m.scores.chemistry} {m.maxScores?.chemistry ? `/ ${m.maxScores.chemistry}` : ''}</TableCell>
+                                            <TableCell>
+                                                {selectedReport?.stream === 'Medical' ? m.scores.bio : m.scores.maths}
+                                                {selectedReport?.stream === 'Medical'
+                                                    ? (m.maxScores?.bio ? ` / ${m.maxScores.bio}` : '')
+                                                    : (m.maxScores?.maths ? ` / ${m.maxScores.maths}` : '')
+                                                }
+                                            </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" sx={{ color: m.attendance < 75 ? 'error.main' : 'success.main', fontWeight: 700 }}>
                                                     {m.attendance}%

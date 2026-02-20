@@ -35,8 +35,8 @@ const BulkUploadZone = ({ onUploadSuccess }) => {
     };
 
     const downloadTemplate = () => {
-        const headers = 'rollNumber,examName,date,physics,chemistry,maths,bio,attendance,remarks\n';
-        const sample = 'STU001,Mid-Term 1,2024-03-01,85,90,88,0,95,Great performance\n';
+        const headers = 'rollNumber,examName,date,physics,maxPhysics,chemistry,maxChemistry,maths,maxMaths,bio,maxBio,attendance,remarks\n';
+        const sample = 'STU001,Mid-Term 1,2024-03-01,85,100,90,100,88,100,0,100,95,Great performance\n';
         const blob = new Blob([headers + sample], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
