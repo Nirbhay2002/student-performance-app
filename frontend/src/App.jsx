@@ -1,11 +1,30 @@
-import React, { useState } from 'react';
-import { ThemeProvider, CssBaseline, Box, AppBar, Toolbar, Typography, Tab, Tabs } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { ThemeProvider, CssBaseline, Box, AppBar, Toolbar, Typography, Tab, Tabs, Button } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
 import theme from './theme';
 import { routes } from './routes';
+import Login from './components/Login';
 import './App.css';
 
 function App() {
   const [tabValue, setTabValue] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = (token) => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+  };
 
 
 
@@ -24,6 +43,15 @@ function App() {
     setTabValue(newValue);
     setNavParams({}); // Clear params on manual tab switch
   };
+
+  if (!isLoggedIn) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Login onLogin={handleLogin} />
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -50,6 +78,9 @@ function App() {
               />
             ))}
           </Tabs>
+          <Button color="inherit" onClick={handleLogout} sx={{ display: { xs: 'none', sm: 'flex' }, ml: 2 }}>
+            <LogoutIcon sx={{ mr: 1 }} /> Logout
+          </Button>
         </Toolbar>
         <Tabs
           value={tabValue}
@@ -66,6 +97,9 @@ function App() {
             />
           ))}
         </Tabs>
+        <Button color="inherit" fullWidth onClick={handleLogout} sx={{ display: { xs: 'flex', sm: 'none' }, py: 1.5, justifyContent: 'center' }}>
+          <LogoutIcon sx={{ mr: 1 }} /> Logout
+        </Button>
       </AppBar>
 
       <div className="app-container">

@@ -27,9 +27,11 @@ async function startServer() {
     app.get('/health', (req, res) => res.json({ status: 'UP' }));
 
     // --- API ROUTES ---
+    const authRoutes = require('./routes/authRoutes');
     const studentRoutes = require('./routes/studentRoutes');
     const markRoutes = require('./routes/markRoutes');
 
+    app.use('/api/auth', authRoutes);
     app.use('/api/students', studentRoutes);
     app.use('/api/marks', markRoutes);
 

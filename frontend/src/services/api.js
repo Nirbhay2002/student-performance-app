@@ -10,10 +10,26 @@ const api = axios.create({
     }
 });
 
+// Request interceptor to add the auth token to every request
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 // Add a response interceptor for better error handling
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.reload();
+        }
         console.error('API Error:', {
             message: error.message,
             status: error.response?.status,
