@@ -16,7 +16,8 @@ import {
     InputAdornment,
     IconButton,
     Grid,
-    CircularProgress
+    CircularProgress,
+    Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -24,12 +25,18 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { studentService } from '../services/studentService';
 import ReportCardModal from './dashboard/ReportCardModal';
 import PerformanceModal from './dashboard/PerformanceModal';
-import { downloadPDF } from '../utils';
+import { downloadPDF, generatePdfBlob } from '../utils';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+import HiddenReportContent from './dashboard/HiddenReportContent';
 
 const StudentRecords = ({ navParams }) => {
     const [students, setStudents] = useState([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
+
+    // Cancellation Ref
+    const cancelDownloadRef = React.useRef(false);
 
     // Filters
     const [searchName, setSearchName] = useState('');
@@ -48,6 +55,13 @@ const StudentRecords = ({ navParams }) => {
 
     // Performance Modal
     const [selectedPerformanceStudent, setSelectedPerformanceStudent] = useState(null);
+
+    // Batch Download State
+    const [isDownloadingZip, setIsDownloadingZip] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState(0);
+    const [totalToDownload, setTotalToDownload] = useState(0);
+    const [batchStudent, setBatchStudent] = useState(null);
+    const [batchReport, setBatchReport] = useState(null);
 
     // Debounced search
     const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -146,6 +160,72 @@ const StudentRecords = ({ navParams }) => {
         setPage(0);
     };
 
+    const handleDownloadAllZip = async () => {
+        setIsDownloadingZip(true);
+        cancelDownloadRef.current = false;
+        try {
+            let allStudents = [];
+            let p = 0;
+            let t = 1;
+            while (allStudents.length < t) {
+                if (cancelDownloadRef.current) throw new Error("Cancelled by user");
+                const res = await studentService.getAllStudents({ page: p, limit: 100, search: debouncedSearch, stream: filterStream, batch: filterBatch, category: filterCategory });
+                allStudents = [...allStudents, ...res.students];
+                t = res.total;
+                p++;
+            }
+
+            setTotalToDownload(allStudents.length);
+            setDownloadProgress(0);
+
+            const zip = new JSZip();
+
+            for (let i = 0; i < allStudents.length; i++) {
+                if (cancelDownloadRef.current) throw new Error("Cancelled by user");
+
+                const student = allStudents[i];
+                const reportData = await studentService.getStudentPerformance(student._id);
+
+                await new Promise(resolve => {
+                    setBatchStudent(student);
+                    setBatchReport(reportData);
+                    setTimeout(resolve, 800); // Allow DOM to render and charts to init
+                });
+
+                if (cancelDownloadRef.current) throw new Error("Cancelled by user");
+
+                const blob = await generatePdfBlob('hidden-report-card');
+                zip.file(`${student.rollNumber}_${student.name}_Report.pdf`, blob);
+
+                setDownloadProgress(i + 1);
+            }
+
+            if (cancelDownloadRef.current) throw new Error("Cancelled by user");
+
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            saveAs(zipBlob, `Student_Report_Cards_${new Date().toISOString().split('T')[0]}.zip`);
+
+        } catch (err) {
+            if (err.message === "Cancelled by user") {
+                console.log("Zip download cancelled.");
+            } else {
+                console.error("Failed to download zip:", err);
+                alert("An error occurred while downloading report cards zip.");
+            }
+        } finally {
+            setIsDownloadingZip(false);
+            setBatchStudent(null);
+            setBatchReport(null);
+            setDownloadProgress(0);
+            setTotalToDownload(0);
+            cancelDownloadRef.current = false;
+        }
+    };
+
+    const handleCancelDownload = () => {
+        cancelDownloadRef.current = true;
+    };
+
     const batches = ['All', 'Growth', 'Excel', 'Conquer']; // Simplified for now, or fetch from separate endpoint
 
     return (
@@ -159,6 +239,37 @@ const StudentRecords = ({ navParams }) => {
                         Comprehensive database of enrolled students and academic performance.
                     </Typography>
                 </Box>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    {isDownloadingZip && (
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={handleCancelDownload}
+                        >
+                            Cancel
+                        </Button>
+                    )}
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={isDownloadingZip || students.length === 0}
+                        onClick={handleDownloadAllZip}
+                        sx={{
+                            "&.Mui-disabled": {
+                                backgroundColor: "primary.main",
+                                color: "white",
+                                opacity: 0.7
+                            }
+                        }}
+                    >
+                        {isDownloadingZip ? `Zipping (${downloadProgress}/${totalToDownload})...` : 'Download All as ZIP'}
+                    </Button>
+                </Box>
+            </Box>
+
+            {/* Hidden component for batch pdf generation */}
+            <Box sx={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
+                <HiddenReportContent student={batchStudent} reportData={batchReport} getCategoryColor={getCategoryColor} />
             </Box>
 
             {/* Filters */}
