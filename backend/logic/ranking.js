@@ -16,9 +16,7 @@ const getMaxScore = (mark, stream) => {
 
 const getEffectiveTotalScore = (m) => {
   if (typeof m.totalScore === 'number') return m.totalScore;
-  if (m.scores) {
-    return (m.scores.physics || 0) + (m.scores.chemistry || 0) + (m.scores.maths || 0) + (m.scores.bio || 0);
-  }
+  return (m.scores.physics || 0) + (m.scores.chemistry || 0) + (m.scores.maths || 0) + (m.scores.botany || 0) + (m.scores.zoology || 0);
   return 0;
 };
 

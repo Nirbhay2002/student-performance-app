@@ -29,12 +29,14 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                     <Box sx={{ display: 'flex', gap: 1 }}>
                         <TextField fullWidth label="Physics" type="number" value={marks.physics} onChange={handleChange('physics')} />
                         <TextField fullWidth label="Max" type="number" value={marks.maxPhysics} onChange={handleChange('maxPhysics')} sx={{ maxWidth: 80 }} />
+                        <TextField fullWidth label="Chapter / Name" value={marks.testNamePhysics} onChange={handleChange('testNamePhysics')} placeholder="e.g. Kinematics" />
                     </Box>
                 </Grid>
                 <Grid item xs={12} sm={4}>
                     <Box sx={{ display: 'flex', gap: 1 }}>
                         <TextField fullWidth label="Chemistry" type="number" value={marks.chemistry} onChange={handleChange('chemistry')} />
                         <TextField fullWidth label="Max" type="number" value={marks.maxChemistry} onChange={handleChange('maxChemistry')} sx={{ maxWidth: 80 }} />
+                        <TextField fullWidth label="Chapter / Name" value={marks.testNameChemistry} onChange={handleChange('testNameChemistry')} placeholder="e.g. Organic" />
                     </Box>
                 </Grid>
                 {students.find(s => s._id === selectedStudent)?.stream === 'Non-Medical' && (
@@ -42,16 +44,27 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <TextField fullWidth label="Mathematics" type="number" value={marks.maths} onChange={handleChange('maths')} />
                             <TextField fullWidth label="Max" type="number" value={marks.maxMaths} onChange={handleChange('maxMaths')} sx={{ maxWidth: 80 }} />
+                            <TextField fullWidth label="Chapter / Name" value={marks.testNameMaths} onChange={handleChange('testNameMaths')} placeholder="e.g. Calculus" />
                         </Box>
                     </Grid>
                 )}
                 {students.find(s => s._id === selectedStudent)?.stream === 'Medical' && (
-                    <Grid item xs={12} sm={4}>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                            <TextField fullWidth label="Biology" type="number" value={marks.bio} onChange={handleChange('bio')} />
-                            <TextField fullWidth label="Max" type="number" value={marks.maxBio} onChange={handleChange('maxBio')} sx={{ maxWidth: 80 }} />
-                        </Box>
-                    </Grid>
+                    <React.Fragment>
+                        <Grid item xs={12} sm={4}>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                <TextField fullWidth label="Botany" type="number" value={marks.botany} onChange={handleChange('botany')} />
+                                <TextField fullWidth label="Max" type="number" value={marks.maxBotany} onChange={handleChange('maxBotany')} sx={{ maxWidth: 80 }} />
+                                <TextField fullWidth label="Chapter / Name" value={marks.testNameBotany} onChange={handleChange('testNameBotany')} placeholder="e.g. Chapter 1" />
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                <TextField fullWidth label="Zoology" type="number" value={marks.zoology} onChange={handleChange('zoology')} />
+                                <TextField fullWidth label="Max" type="number" value={marks.maxZoology} onChange={handleChange('maxZoology')} sx={{ maxWidth: 80 }} />
+                                <TextField fullWidth label="Chapter / Name" value={marks.testNameZoology} onChange={handleChange('testNameZoology')} placeholder="e.g. Chapter 1" />
+                            </Box>
+                        </Grid>
+                    </React.Fragment>
                 )}
                 <Grid item xs={12}>
                     <TextField fullWidth label="Attendance (Percentage)" type="number" value={marks.attendance} onChange={handleChange('attendance')} />

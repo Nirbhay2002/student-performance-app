@@ -34,6 +34,8 @@ const seed = async () => {
             'January Unit Test', 'February Unit Test', 'March Final Exam'
         ];
 
+        const testNames = ['Chapter 1', 'Kinematics', 'Combined test', 'Full test', 'Mock Exam 1', 'Organic Chem Basics'];
+
         for (let i = 1; i <= 600; i++) {
             const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
             const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
@@ -88,18 +90,27 @@ const seed = async () => {
                 const marks = new Marks({
                     studentId: student._id,
                     examName: exams[j],
+                    testNames: {
+                        physics: testNames[Math.floor(Math.random() * testNames.length)],
+                        chemistry: testNames[Math.floor(Math.random() * testNames.length)],
+                        maths: stream === 'Non-Medical' ? testNames[Math.floor(Math.random() * testNames.length)] : 'Combined test',
+                        botany: stream === 'Medical' ? testNames[Math.floor(Math.random() * testNames.length)] : 'Combined test',
+                        zoology: stream === 'Medical' ? testNames[Math.floor(Math.random() * testNames.length)] : 'Combined test'
+                    },
                     date: new Date(Date.now() - (exams.length - 1 - j) * 30 * 24 * 60 * 60 * 1000),
                     scores: {
                         physics: Math.round(baseScore + (Math.random() * 6 - 3)),
                         chemistry: Math.round(baseScore + (Math.random() * 6 - 3)),
                         maths: stream === 'Non-Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
-                        bio: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
+                        botany: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
+                        zoology: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
                     },
                     maxScores: {
                         physics: 100,
                         chemistry: 100,
                         maths: stream === 'Non-Medical' ? 100 : 0,
-                        bio: stream === 'Medical' ? 100 : 0,
+                        botany: stream === 'Medical' ? 100 : 0,
+                        zoology: stream === 'Medical' ? 100 : 0,
                     },
                     attendance: Math.round(80 + Math.random() * 20),
                     remarks: `Auto-generated ${trend} trend`

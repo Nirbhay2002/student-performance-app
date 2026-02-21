@@ -23,9 +23,16 @@ const AdminPanel = () => {
     maxChemistry: '100',
     maths: '',
     maxMaths: '100',
-    bio: '',
-    maxBio: '100',
+    botany: '',
+    maxBotany: '100',
+    zoology: '',
+    maxZoology: '100',
     attendance: '',
+    testNamePhysics: '',
+    testNameChemistry: '',
+    testNameMaths: '',
+    testNameBotany: '',
+    testNameZoology: '',
   });
 
   const [open, setOpen] = useState(false);
@@ -72,16 +79,25 @@ const AdminPanel = () => {
           physics: Number(marks.physics),
           chemistry: Number(marks.chemistry),
           maths: Number(marks.maths || 0),
-          bio: Number(marks.bio || 0)
+          botany: Number(marks.botany || 0),
+          zoology: Number(marks.zoology || 0)
         },
         maxScores: {
           physics: Number(marks.maxPhysics || 100),
           chemistry: Number(marks.maxChemistry || 100),
           maths: Number(marks.maxMaths || 100),
-          bio: Number(marks.maxBio || 100)
+          botany: Number(marks.maxBotany || 100),
+          zoology: Number(marks.maxZoology || 100)
         },
         attendance: Number(marks.attendance),
-        examName: 'Monthly Test'
+        examName: 'Monthly Test',
+        testNames: {
+          physics: marks.testNamePhysics || 'Combined test',
+          chemistry: marks.testNameChemistry || 'Combined test',
+          maths: marks.testNameMaths || 'Combined test',
+          botany: marks.testNameBotany || 'Combined test',
+          zoology: marks.testNameZoology || 'Combined test',
+        }
       });
       setMsg('Marks saved & Rank updated!');
       setOpen(true);
@@ -92,9 +108,16 @@ const AdminPanel = () => {
         maxChemistry: '100',
         maths: '',
         maxMaths: '100',
-        bio: '',
-        maxBio: '100',
+        botany: '',
+        maxBotany: '100',
+        zoology: '',
+        maxZoology: '100',
         attendance: '',
+        testNamePhysics: '',
+        testNameChemistry: '',
+        testNameMaths: '',
+        testNameBotany: '',
+        testNameZoology: '',
       });
     } catch (err) {
       console.error(err);

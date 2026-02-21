@@ -30,19 +30,30 @@ const processBulkUpload = async (buffer) => {
                 physics: Number(row.physics) || 0,
                 chemistry: Number(row.chemistry) || 0,
                 maths: Number(row.maths) || 0,
-                bio: Number(row.bio) || 0
+                botany: Number(row.botany) || 0,
+                zoology: Number(row.zoology) || 0
             };
 
             const maxScores = {
                 physics: row.maxPhysics !== undefined ? Number(row.maxPhysics) : 100,
                 chemistry: row.maxChemistry !== undefined ? Number(row.maxChemistry) : 100,
                 maths: row.maxMaths !== undefined ? Number(row.maxMaths) : 100,
-                bio: row.maxBio !== undefined ? Number(row.maxBio) : 100
+                botany: row.maxBotany !== undefined ? Number(row.maxBotany) : 100,
+                zoology: row.maxZoology !== undefined ? Number(row.maxZoology) : 100
+            };
+
+            const testNames = {
+                physics: row.testNamePhysics || 'Combined test',
+                chemistry: row.testNameChemistry || 'Combined test',
+                maths: row.testNameMaths || 'Combined test',
+                botany: row.testNameBotany || 'Combined test',
+                zoology: row.testNameZoology || 'Combined test'
             };
 
             const mark = new Marks({
                 studentId: student._id,
                 examName: row.examName || 'Bulk Test',
+                testNames,
                 date: row.date ? new Date(row.date) : new Date(),
                 scores,
                 maxScores,
@@ -57,8 +68,6 @@ const processBulkUpload = async (buffer) => {
             results.errors.push(`Row ${i + 1} (${row.rollNumber || 'unknown'}): ${err.message}`);
         }
     }
-
-    // Recalculate performance for affected students
     for (const studentId of results.affectedStudents) {
         const student = await Student.findById(studentId);
         if (!student) continue;

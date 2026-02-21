@@ -84,11 +84,36 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
         setPage(0);
     };
 
+    const formatTestNames = (testNames, stream) => {
+        if (!testNames) return <Typography variant="caption" color="textSecondary">Combined test</Typography>;
+
+        const validSubjects = [];
+        if (testNames.physics && testNames.physics !== 'Combined test') validSubjects.push(`Phy: ${testNames.physics}`);
+        if (testNames.chemistry && testNames.chemistry !== 'Combined test') validSubjects.push(`Chem: ${testNames.chemistry}`);
+
+        if (stream === 'Medical') {
+            if (testNames.botany && testNames.botany !== 'Combined test') validSubjects.push(`Bot: ${testNames.botany}`);
+            if (testNames.zoology && testNames.zoology !== 'Combined test') validSubjects.push(`Zoo: ${testNames.zoology}`);
+        } else {
+            if (testNames.maths && testNames.maths !== 'Combined test') validSubjects.push(`Math: ${testNames.maths}`);
+        }
+
+        if (validSubjects.length === 0) return <Typography variant="caption" color="textSecondary">Combined test</Typography>;
+
+        return (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {validSubjects.map((s, i) => (
+                    <Chip key={i} label={s} size="small" sx={{ fontSize: '0.65rem', height: 20 }} />
+                ))}
+            </Box>
+        );
+    };
+
     return (
         <Dialog
             open={open}
             onClose={onClose}
-            maxWidth="md"
+            maxWidth="lg"
             fullWidth
             PaperProps={{ sx: { borderRadius: 1.5, position: 'relative' } }}
         >
@@ -211,9 +236,17 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
                                 <TableHead sx={{ bgcolor: '#1a237e' }}>
                                     <TableRow>
                                         <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Test Date</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Test Name</TableCell>
                                         <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Physics</TableCell>
                                         <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Chemistry</TableCell>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>{selectedReport?.stream === 'Medical' ? 'Biology' : 'Mathematics'}</TableCell>
+                                        {selectedReport?.stream === 'Medical' ? (
+                                            <React.Fragment>
+                                                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Botany</TableCell>
+                                                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Zoology</TableCell>
+                                            </React.Fragment>
+                                        ) : (
+                                            <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Mathematics</TableCell>
+                                        )}
                                         <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Attendance</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -221,15 +254,17 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
                                     {paginatedMarks.map((m, idx) => (
                                         <TableRow key={idx} sx={{ '&:nth-of-type(even)': { bgcolor: '#fafafa' } }}>
                                             <TableCell sx={{ fontWeight: 600 }}>{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</TableCell>
+                                            <TableCell>{formatTestNames(m.testNames, selectedReport?.stream)}</TableCell>
                                             <TableCell>{m.scores.physics} {m.maxScores?.physics ? `/ ${m.maxScores.physics}` : ''}</TableCell>
                                             <TableCell>{m.scores.chemistry} {m.maxScores?.chemistry ? `/ ${m.maxScores.chemistry}` : ''}</TableCell>
-                                            <TableCell>
-                                                {selectedReport?.stream === 'Medical' ? m.scores.bio : m.scores.maths}
-                                                {selectedReport?.stream === 'Medical'
-                                                    ? (m.maxScores?.bio ? ` / ${m.maxScores.bio}` : '')
-                                                    : (m.maxScores?.maths ? ` / ${m.maxScores.maths}` : '')
-                                                }
-                                            </TableCell>
+                                            {selectedReport?.stream === 'Medical' ? (
+                                                <React.Fragment>
+                                                    <TableCell>{m.scores.botany} {m.maxScores?.botany ? `/ ${m.maxScores.botany}` : ''}</TableCell>
+                                                    <TableCell>{m.scores.zoology} {m.maxScores?.zoology ? `/ ${m.maxScores.zoology}` : ''}</TableCell>
+                                                </React.Fragment>
+                                            ) : (
+                                                <TableCell>{m.scores.maths} {m.maxScores?.maths ? `/ ${m.maxScores.maths}` : ''}</TableCell>
+                                            )}
                                             <TableCell>
                                                 <Typography variant="body2" sx={{ color: m.attendance < 75 ? 'error.main' : 'success.main', fontWeight: 700 }}>
                                                     {m.attendance}%
