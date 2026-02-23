@@ -17,7 +17,9 @@ import {
     IconButton,
     Grid,
     CircularProgress,
-    Button
+    Button,
+    Popover,
+    Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -29,6 +31,7 @@ import { downloadPDF, generatePdfBlob } from '../utils';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import HiddenReportContent from './dashboard/HiddenReportContent';
+import DateRangeFilter from './dashboard/DateRangeFilter';
 
 const StudentRecords = ({ navParams }) => {
     const [students, setStudents] = useState([]);
@@ -62,6 +65,12 @@ const StudentRecords = ({ navParams }) => {
     const [totalToDownload, setTotalToDownload] = useState(0);
     const [batchStudent, setBatchStudent] = useState(null);
     const [batchReport, setBatchReport] = useState(null);
+
+    // Bulk download date filter
+    const [downloadMenuAnchor, setDownloadMenuAnchor] = useState(null);
+    const [bulkStartDate, setBulkStartDate] = useState('');
+    const [bulkEndDate, setBulkEndDate] = useState('');
+    const [bulkActivePreset, setBulkActivePreset] = useState('all');
 
     // Debounced search
     const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -222,6 +231,19 @@ const StudentRecords = ({ navParams }) => {
         }
     };
 
+    const handleOpenDownloadMenu = (event) => {
+        setDownloadMenuAnchor(event.currentTarget);
+    };
+
+    const handleCloseDownloadMenu = () => {
+        setDownloadMenuAnchor(null);
+    };
+
+    const handleConfirmDownload = () => {
+        handleCloseDownloadMenu();
+        handleDownloadAllZip();
+    };
+
     const handleCancelDownload = () => {
         cancelDownloadRef.current = true;
     };
@@ -253,7 +275,7 @@ const StudentRecords = ({ navParams }) => {
                         variant="contained"
                         color="primary"
                         disabled={isDownloadingZip || students.length === 0}
-                        onClick={handleDownloadAllZip}
+                        onClick={handleOpenDownloadMenu}
                         sx={{
                             "&.Mui-disabled": {
                                 backgroundColor: "primary.main",
@@ -264,12 +286,46 @@ const StudentRecords = ({ navParams }) => {
                     >
                         {isDownloadingZip ? `Zipping (${downloadProgress}/${totalToDownload})...` : 'Download All as ZIP'}
                     </Button>
+
+                    {/* Date filter popover */}
+                    <Popover
+                        open={Boolean(downloadMenuAnchor)}
+                        anchorEl={downloadMenuAnchor}
+                        onClose={handleCloseDownloadMenu}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                        PaperProps={{ sx: { p: 2.5, width: 420, borderRadius: 2, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' } }}
+                    >
+                        <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>
+                            Filter Report Cards by Date
+                        </Typography>
+                        <DateRangeFilter
+                            startDate={bulkStartDate}
+                            endDate={bulkEndDate}
+                            activePreset={bulkActivePreset}
+                            onStartDate={setBulkStartDate}
+                            onEndDate={setBulkEndDate}
+                            onActivePreset={setBulkActivePreset}
+                        />
+                        <Divider sx={{ my: 2 }} />
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                            <Button size="small" onClick={handleCloseDownloadMenu}>Cancel</Button>
+                            <Button size="small" variant="contained" onClick={handleConfirmDownload}>
+                                Download ZIP
+                            </Button>
+                        </Box>
+                    </Popover>
                 </Box>
             </Box>
 
             {/* Hidden component for batch pdf generation */}
             <Box sx={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, pointerEvents: 'none' }}>
-                <HiddenReportContent student={batchStudent} reportData={batchReport} getCategoryColor={getCategoryColor} />
+                <HiddenReportContent
+                    student={batchStudent}
+                    reportData={batchReport}
+                    getCategoryColor={getCategoryColor}
+                    dateFilter={{ startDate: bulkStartDate, endDate: bulkEndDate }}
+                />
             </Box>
 
             {/* Filters */}

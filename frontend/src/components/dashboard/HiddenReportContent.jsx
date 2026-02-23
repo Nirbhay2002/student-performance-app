@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, Grid, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import SubjectTrendChart from './SubjectTrendChart';
 
-const HiddenReportContent = ({ student, reportData, getCategoryColor }) => {
+const HiddenReportContent = ({ student, reportData, getCategoryColor, dateFilter }) => {
     const formatTestNames = (testNames, stream) => {
         if (!testNames) return <Typography variant="caption" color="textSecondary">Combined test</Typography>;
 
@@ -30,7 +30,22 @@ const HiddenReportContent = ({ student, reportData, getCategoryColor }) => {
 
     if (!student || !reportData) return null;
 
-    const reversedMarks = [...reportData.marks].reverse();
+    const allMarks = reportData.marks || [];
+    const filteredMarks = (() => {
+        const { startDate, endDate } = dateFilter || {};
+        let marks = [...allMarks];
+        if (startDate) {
+            marks = marks.filter(m => new Date(m.date) >= new Date(startDate));
+        }
+        if (endDate) {
+            const endLimit = new Date(endDate);
+            endLimit.setHours(23, 59, 59, 999);
+            marks = marks.filter(m => new Date(m.date) <= endLimit);
+        }
+        return marks;
+    })();
+
+    const reversedMarks = [...filteredMarks].reverse();
 
     return (
         <Box id="hidden-report-card" sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 1.5, bgcolor: '#fff', width: '1200px', backgroundColor: '#fff' }}>
@@ -58,7 +73,7 @@ const HiddenReportContent = ({ student, reportData, getCategoryColor }) => {
                 </Grid>
             </Grid>
 
-            <SubjectTrendChart marks={reportData.marks} stream={student?.stream} />
+            <SubjectTrendChart marks={filteredMarks} stream={student?.stream} />
 
             <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #eee', borderRadius: 3, overflow: 'hidden', mt: 4 }}>
                 <Table>

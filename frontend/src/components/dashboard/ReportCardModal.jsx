@@ -1,10 +1,11 @@
 import React from 'react';
-import { Dialog, DialogTitle, DialogContent, Box, Typography, Grid, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, TextField, TablePagination } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, Box, Typography, Grid, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton, TablePagination } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import SendIcon from '@mui/icons-material/Send';
 import CloseIcon from '@mui/icons-material/Close';
 import SubjectTrendChart from './SubjectTrendChart';
 import CircularProgress from '@mui/material/CircularProgress';
+import DateRangeFilter from './DateRangeFilter';
 
 const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLoading, getCategoryColor, onDownload, onSendEmail }) => {
     const [startDate, setStartDate] = React.useState('');
@@ -13,35 +14,6 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-    const handlePreset = (preset) => {
-        setActivePreset(preset);
-        const end = new Date();
-        let start = new Date();
-
-        switch (preset) {
-            case '1m':
-                start.setMonth(end.getMonth() - 1);
-                break;
-            case '3m':
-                start.setMonth(end.getMonth() - 3);
-                break;
-            case '6m':
-                start.setMonth(end.getMonth() - 6);
-                break;
-            case '1y':
-                start.setFullYear(end.getFullYear() - 1);
-                break;
-            case 'all':
-                setStartDate('');
-                setEndDate('');
-                return;
-            default:
-                return;
-        }
-
-        setStartDate(start.toISOString().split('T')[0]);
-        setEndDate(end.toISOString().split('T')[0]);
-    };
 
     const filteredMarks = React.useMemo(() => {
         if (!reportData?.marks) return [];
@@ -172,61 +144,15 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
                         </Grid>
 
                         {/* Date Range Filters */}
-                        <Box sx={{ mb: 3, p: 2, border: '1px solid #eee', borderRadius: 1.5, bgcolor: '#fff' }}>
-                            <Typography variant="caption" fontWeight={700} color="textSecondary" sx={{ mb: 1.5, display: 'block', textTransform: 'uppercase' }}>
-                                Analysis Timeframe
-                            </Typography>
-                            <Grid container spacing={2.5}>
-                                <Grid item xs={12}>
-                                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                                        {[
-                                            { label: '1 Month', value: '1m' },
-                                            { label: '3 Months', value: '3m' },
-                                            { label: '6 Months', value: '6m' },
-                                            { label: '1 Year', value: '1y' },
-                                            { label: 'All Time', value: 'all' }
-                                        ].map(preset => (
-                                            <Button
-                                                key={preset.value}
-                                                size="small"
-                                                variant={activePreset === preset.value ? 'contained' : 'outlined'}
-                                                onClick={() => handlePreset(preset.value)}
-                                                sx={{ borderRadius: 4, px: 2, fontSize: '0.7rem' }}
-                                            >
-                                                {preset.label}
-                                            </Button>
-                                        ))}
-                                    </Box>
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                        <TextField
-                                            type="date"
-                                            size="small"
-                                            label="From"
-                                            InputLabelProps={{ shrink: true }}
-                                            inputProps={{ max: new Date().toISOString().split('T')[0] }}
-                                            value={startDate}
-                                            onChange={(e) => { setStartDate(e.target.value); setActivePreset('custom'); }}
-                                            sx={{ flex: 1 }}
-                                        />
-                                        <TextField
-                                            type="date"
-                                            size="small"
-                                            label="To"
-                                            InputLabelProps={{ shrink: true }}
-                                            inputProps={{
-                                                max: new Date().toISOString().split('T')[0],
-                                                min: startDate
-                                            }}
-                                            disabled={!startDate}
-                                            value={endDate}
-                                            onChange={(e) => { setEndDate(e.target.value); setActivePreset('custom'); }}
-                                            sx={{ flex: 1 }}
-                                        />
-                                    </Box>
-                                </Grid>
-                            </Grid>
+                        <Box sx={{ mb: 3 }}>
+                            <DateRangeFilter
+                                startDate={startDate}
+                                endDate={endDate}
+                                activePreset={activePreset}
+                                onStartDate={setStartDate}
+                                onEndDate={setEndDate}
+                                onActivePreset={setActivePreset}
+                            />
                         </Box>
 
                         <SubjectTrendChart marks={filteredMarks} stream={selectedReport?.stream} />
