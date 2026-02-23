@@ -7,6 +7,25 @@ const { processBulkUpload } = require('../logic/bulkUpload');
 exports.addMark = async (req, res) => {
     try {
         const { studentId, ...markData } = req.body;
+
+        // Fix #6: Server-side score > max validation
+        const { scores = {}, maxScores = {} } = markData;
+        for (const subj of ['physics', 'chemistry', 'maths', 'botany', 'zoology']) {
+            const sc = scores[subj]; const mx = maxScores[subj];
+            if (sc !== null && sc !== undefined && mx !== null && mx !== undefined && sc > mx) {
+                return res.status(400).json({ error: `Score ${sc} exceeds max ${mx} for ${subj}` });
+            }
+        }
+
+        // Fix #5: Reject duplicate (same student + same date)
+        const testDate = markData.date ? new Date(markData.date) : new Date();
+        const dayStart = new Date(testDate); dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(testDate); dayEnd.setHours(23, 59, 59, 999);
+        const existing = await Marks.findOne({ studentId, date: { $gte: dayStart, $lte: dayEnd } });
+        if (existing) {
+            return res.status(409).json({ error: `A mark already exists for this student on ${testDate.toDateString()}. Remove it first or choose a different date.` });
+        }
+
         const mark = new Marks({ studentId, ...markData });
         await mark.save();
 

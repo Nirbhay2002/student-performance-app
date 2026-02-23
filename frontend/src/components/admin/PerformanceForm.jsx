@@ -8,6 +8,9 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
         setMarks({ ...marks, [field]: e.target.value });
     };
 
+    // Default date to today (YYYY-MM-DD) for the date input
+    const today = new Date().toISOString().split('T')[0];
+
     return (
         <Card className="glass-card" sx={{ p: 4, height: '100%' }}>
             <Typography variant="h6" gutterBottom display="flex" alignItems="center" sx={{ mb: 3 }}>
@@ -24,6 +27,26 @@ const PerformanceForm = ({ students, selectedStudent, setSelectedStudent, marks,
                     >
                         {students.map(s => <MenuItem key={s._id} value={s._id}>{s.name} (Roll: {s.rollNumber})</MenuItem>)}
                     </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        fullWidth
+                        label="Test Date"
+                        type="date"
+                        InputLabelProps={{ shrink: true }}
+                        inputProps={{ max: today }}
+                        value={marks.date || today}
+                        onChange={handleChange('date')}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                    <TextField
+                        fullWidth
+                        label="Exam / Test Name"
+                        value={marks.examName}
+                        onChange={handleChange('examName')}
+                        placeholder="e.g. Mid-Term 1"
+                    />
                 </Grid>
                 <Grid item xs={12} sm={4}>
                     <Box sx={{ display: 'flex', gap: 1 }}>
