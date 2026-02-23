@@ -11,11 +11,12 @@ const marksSchema = new mongoose.Schema({
   },
   date: { type: Date, default: Date.now },
   scores: {
-    physics: { type: Number, default: 0 },
-    chemistry: { type: Number, default: 0 },
-    maths: { type: Number, default: 0 }, // For Non-Medical
-    botany: { type: Number, default: 0 }, // For Medical
-    zoology: { type: Number, default: 0 }, // For Medical
+    // null = absent for that subject, 0 = appeared but scored zero
+    physics: { type: Number, default: null },
+    chemistry: { type: Number, default: null },
+    maths: { type: Number, default: null }, // For Non-Medical
+    botany: { type: Number, default: null }, // For Medical
+    zoology: { type: Number, default: null }, // For Medical
   },
   maxScores: {
     physics: { type: Number, default: 100 },
@@ -30,18 +31,34 @@ const marksSchema = new mongoose.Schema({
   remarks: { type: String },
 }, { timestamps: true });
 
+// Helper: only include subjects the student actually appeared in
+const addIfPresent = (score, max) => ({ score: score ?? null, max });
+
 marksSchema.pre('save', async function () {
   const stream = await mongoose.model('Student').findById(this.studentId).select('stream');
-  this.totalScore = (this.scores.physics || 0) + (this.scores.chemistry || 0);
-  this.maxScore = (this.maxScores.physics || 100) + (this.maxScores.chemistry || 100);
+
+  // Core subjects always included
+  let totalScore = 0;
+  let maxScore = 0;
+
+  const phy = this.scores.physics;
+  const chem = this.scores.chemistry;
+
+  if (phy !== null && phy !== undefined) { totalScore += phy; maxScore += (this.maxScores.physics || 100); }
+  if (chem !== null && chem !== undefined) { totalScore += chem; maxScore += (this.maxScores.chemistry || 100); }
 
   if (stream && stream.stream === 'Medical') {
-    this.totalScore += (this.scores.botany || 0) + (this.scores.zoology || 0);
-    this.maxScore += (this.maxScores.botany || 100) + (this.maxScores.zoology || 100);
+    const bot = this.scores.botany;
+    const zoo = this.scores.zoology;
+    if (bot !== null && bot !== undefined) { totalScore += bot; maxScore += (this.maxScores.botany || 100); }
+    if (zoo !== null && zoo !== undefined) { totalScore += zoo; maxScore += (this.maxScores.zoology || 100); }
   } else {
-    this.totalScore += (this.scores.maths || 0);
-    this.maxScore += (this.maxScores.maths || 100);
+    const mth = this.scores.maths;
+    if (mth !== null && mth !== undefined) { totalScore += mth; maxScore += (this.maxScores.maths || 100); }
   }
+
+  this.totalScore = totalScore;
+  this.maxScore = maxScore;
 });
 
 module.exports = mongoose.model('Marks', marksSchema);

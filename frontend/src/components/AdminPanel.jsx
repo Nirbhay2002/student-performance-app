@@ -28,6 +28,8 @@ const AdminPanel = () => {
     zoology: '',
     maxZoology: '100',
     attendance: '',
+    date: new Date().toISOString().split('T')[0],
+    examName: '',
     testNamePhysics: '',
     testNameChemistry: '',
     testNameMaths: '',
@@ -37,6 +39,7 @@ const AdminPanel = () => {
 
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState('');
+  const [msgSeverity, setMsgSeverity] = useState('success');
   const [isRegistering, setIsRegistering] = useState(false);
   const [isSavingMarks, setIsSavingMarks] = useState(false);
 
@@ -72,15 +75,35 @@ const AdminPanel = () => {
 
   const handleSaveMarks = async () => {
     setIsSavingMarks(true);
+    const parseScore = (v) => (v === '' || v === null || v === undefined) ? null : Number(v);
+
+    // Fix #6: Client-side score > max validation
+    const scoreFields = [
+      { score: marks.physics, max: marks.maxPhysics, label: 'Physics' },
+      { score: marks.chemistry, max: marks.maxChemistry, label: 'Chemistry' },
+      { score: marks.maths, max: marks.maxMaths, label: 'Mathematics' },
+      { score: marks.botany, max: marks.maxBotany, label: 'Botany' },
+      { score: marks.zoology, max: marks.maxZoology, label: 'Zoology' },
+    ];
+    for (const { score, max, label } of scoreFields) {
+      if (score !== '' && max !== '' && Number(score) > Number(max)) {
+        alert(`${label} score (${score}) cannot exceed max (${max}).`);
+        setIsSavingMarks(false);
+        return;
+      }
+    }
+
     try {
       await studentService.saveMarks({
         studentId: selectedStudent,
+        date: marks.date || new Date().toISOString().split('T')[0],
+        examName: marks.examName || 'Monthly Test',
         scores: {
-          physics: Number(marks.physics),
-          chemistry: Number(marks.chemistry),
-          maths: Number(marks.maths || 0),
-          botany: Number(marks.botany || 0),
-          zoology: Number(marks.zoology || 0)
+          physics: parseScore(marks.physics),
+          chemistry: parseScore(marks.chemistry),
+          maths: parseScore(marks.maths),
+          botany: parseScore(marks.botany),
+          zoology: parseScore(marks.zoology)
         },
         maxScores: {
           physics: Number(marks.maxPhysics || 100),
@@ -90,7 +113,6 @@ const AdminPanel = () => {
           zoology: Number(marks.maxZoology || 100)
         },
         attendance: Number(marks.attendance),
-        examName: 'Monthly Test',
         testNames: {
           physics: marks.testNamePhysics || 'Combined test',
           chemistry: marks.testNameChemistry || 'Combined test',
@@ -101,26 +123,25 @@ const AdminPanel = () => {
       });
       setMsg('Marks saved & Rank updated!');
       setOpen(true);
+      // Fix #10: Notify StudentRecords (and any other component) that data changed
+      window.dispatchEvent(new Event('studentDataChanged'));
       setMarks({
-        physics: '',
-        maxPhysics: '100',
-        chemistry: '',
-        maxChemistry: '100',
-        maths: '',
-        maxMaths: '100',
-        botany: '',
-        maxBotany: '100',
-        zoology: '',
-        maxZoology: '100',
+        physics: '', maxPhysics: '100',
+        chemistry: '', maxChemistry: '100',
+        maths: '', maxMaths: '100',
+        botany: '', maxBotany: '100',
+        zoology: '', maxZoology: '100',
         attendance: '',
-        testNamePhysics: '',
-        testNameChemistry: '',
-        testNameMaths: '',
-        testNameBotany: '',
-        testNameZoology: '',
+        date: new Date().toISOString().split('T')[0],
+        examName: '',
+        testNamePhysics: '', testNameChemistry: '',
+        testNameMaths: '', testNameBotany: '', testNameZoology: '',
       });
     } catch (err) {
-      console.error(err);
+      const errMsg = err.response?.data?.error || err.message || 'Failed to save marks';
+      setMsg(errMsg);
+      setMsgSeverity('error');
+      setOpen(true);
     } finally {
       setIsSavingMarks(false);
     }
@@ -166,8 +187,8 @@ const AdminPanel = () => {
 
       <BulkUploadZone onUploadSuccess={fetchStudents} />
 
-      <Snackbar open={open} autoHideDuration={4000} onClose={() => setOpen(false)}>
-        <Alert onClose={() => setOpen(false)} severity="success" variant="filled" sx={{ width: '100%', borderRadius: 3 }}>
+      <Snackbar open={open} autoHideDuration={5000} onClose={() => setOpen(false)}>
+        <Alert onClose={() => setOpen(false)} severity={msgSeverity} variant="filled" sx={{ width: '100%', borderRadius: 3 }}>
           {msg}
         </Alert>
       </Snackbar>

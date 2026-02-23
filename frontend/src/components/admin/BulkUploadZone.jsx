@@ -36,8 +36,10 @@ const BulkUploadZone = ({ onUploadSuccess }) => {
 
     const downloadTemplate = () => {
         const headers = 'rollNumber,examName,date,physics,maxPhysics,testNamePhysics,chemistry,maxChemistry,testNameChemistry,maths,maxMaths,testNameMaths,botany,maxBotany,testNameBotany,zoology,maxZoology,testNameZoology,attendance,remarks\n';
-        const sample = 'STU001,Mid-Term 1,2024-03-01,85,100,Kinematics,90,100,Organic,88,100,Calculus,0,100,Combined test,0,100,Combined test,95,Great performance\n';
-        const blob = new Blob([headers + sample], { type: 'text/csv' });
+        const sample1 = 'STU001,Mid-Term 1,2024-03-01,85,100,Kinematics,90,100,Organic,88,100,Calculus,,,,,,,95,Great performance\n';
+        // Leave score cells empty (or type "absent") when a student did not appear for that subject
+        const sample2 = 'STU002,Mid-Term 1,2024-03-01,absent,100,Kinematics,72,100,Organic,absent,100,Calculus,,,,,,,80,Absent in Physics and Maths\n';
+        const blob = new Blob([headers + sample1 + sample2], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;

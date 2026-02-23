@@ -102,6 +102,13 @@ const StudentRecords = ({ navParams }) => {
         fetchStudents();
     }, [page, rowsPerPage, debouncedSearch, filterStream, filterBatch, filterCategory]);
 
+    // Fix #10: Re-fetch when marks are saved in AdminPanel (same session cross-tab)
+    useEffect(() => {
+        const handler = () => fetchStudents();
+        window.addEventListener('studentDataChanged', handler);
+        return () => window.removeEventListener('studentDataChanged', handler);
+    }, []);
+
     const fetchStudents = async () => {
         try {
             setLoading(true);
@@ -122,11 +129,6 @@ const StudentRecords = ({ navParams }) => {
         }
     };
 
-    const clearPerformanceFilter = () => {
-        setFilterMinScore(null);
-        setFilterMaxScore(null);
-        setPage(0);
-    };
 
     const handleOpenReport = async (student) => {
         setIsReportLoading(true);

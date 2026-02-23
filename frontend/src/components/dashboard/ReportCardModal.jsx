@@ -7,6 +7,14 @@ import SubjectTrendChart from './SubjectTrendChart';
 import CircularProgress from '@mui/material/CircularProgress';
 import DateRangeFilter from './DateRangeFilter';
 
+// Renders a score value or an "Absent" chip when the score is null
+const ScoreCell = ({ score, max }) => {
+    if (score === null || score === undefined) {
+        return <Chip label="Absent" size="small" sx={{ bgcolor: '#fce8e6', color: '#c62828', fontWeight: 700, fontSize: '0.65rem', height: 20 }} />;
+    }
+    return <>{score}{max ? ` / ${max}` : ''}</>;
+};
+
 const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLoading, getCategoryColor, onDownload, onSendEmail }) => {
     const [startDate, setStartDate] = React.useState('');
     const [endDate, setEndDate] = React.useState('');
@@ -181,15 +189,15 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
                                         <TableRow key={idx} sx={{ '&:nth-of-type(even)': { bgcolor: '#fafafa' } }}>
                                             <TableCell sx={{ fontWeight: 600 }}>{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</TableCell>
                                             <TableCell>{formatTestNames(m.testNames, selectedReport?.stream)}</TableCell>
-                                            <TableCell>{m.scores.physics} {m.maxScores?.physics ? `/ ${m.maxScores.physics}` : ''}</TableCell>
-                                            <TableCell>{m.scores.chemistry} {m.maxScores?.chemistry ? `/ ${m.maxScores.chemistry}` : ''}</TableCell>
+                                            <TableCell><ScoreCell score={m.scores.physics} max={m.maxScores?.physics} /></TableCell>
+                                            <TableCell><ScoreCell score={m.scores.chemistry} max={m.maxScores?.chemistry} /></TableCell>
                                             {selectedReport?.stream === 'Medical' ? (
                                                 <React.Fragment>
-                                                    <TableCell>{m.scores.botany} {m.maxScores?.botany ? `/ ${m.maxScores.botany}` : ''}</TableCell>
-                                                    <TableCell>{m.scores.zoology} {m.maxScores?.zoology ? `/ ${m.maxScores.zoology}` : ''}</TableCell>
+                                                    <TableCell><ScoreCell score={m.scores.botany} max={m.maxScores?.botany} /></TableCell>
+                                                    <TableCell><ScoreCell score={m.scores.zoology} max={m.maxScores?.zoology} /></TableCell>
                                                 </React.Fragment>
                                             ) : (
-                                                <TableCell>{m.scores.maths} {m.maxScores?.maths ? `/ ${m.maxScores.maths}` : ''}</TableCell>
+                                                <TableCell><ScoreCell score={m.scores.maths} max={m.maxScores?.maths} /></TableCell>
                                             )}
                                             <TableCell>
                                                 <Typography variant="body2" sx={{ color: m.attendance < 75 ? 'error.main' : 'success.main', fontWeight: 700 }}>

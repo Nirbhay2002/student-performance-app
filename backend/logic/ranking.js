@@ -14,10 +14,12 @@ const getMaxScore = (mark, stream) => {
   return 300; // Default / Non-Medical
 };
 
+// Null = absent (not scored 0). Only sum subjects the student appeared in.
 const getEffectiveTotalScore = (m) => {
   if (typeof m.totalScore === 'number') return m.totalScore;
-  return (m.scores.physics || 0) + (m.scores.chemistry || 0) + (m.scores.maths || 0) + (m.scores.botany || 0) + (m.scores.zoology || 0);
-  return 0;
+  const s = m.scores;
+  return [s.physics, s.chemistry, s.maths, s.botany, s.zoology]
+    .reduce((acc, v) => acc + (v !== null && v !== undefined ? v : 0), 0);
 };
 
 const calculatePerformance = (allMarks, stream = 'Non-Medical') => {
@@ -91,18 +93,19 @@ const recalculateAllCategories = async (StudentModel) => {
   const bottom25Index = Math.floor(total * 0.75);
 
   const bulkOps = students.map((student, index) => {
-    const currentRank = index + 1;
+    const newRank = index + 1;
     let category = 'Medium';
     if (index < top25Index) category = 'Best';
     else if (index >= bottom25Index) category = 'Worst';
 
-    const previousRank = student.currentRank || currentRank;
-    const bestRank = Math.min(student.bestRank || 999999, currentRank);
+    // previousRank = rank BEFORE this recalculation (student.currentRank holds the old value)
+    const previousRank = student.currentRank || newRank;
+    const bestRank = Math.min(student.bestRank || 999999, newRank);
 
     return {
       updateOne: {
         filter: { _id: student._id },
-        update: { category, currentRank, previousRank, bestRank }
+        update: { category, currentRank: newRank, previousRank, bestRank }
       }
     };
   });
