@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, Container, Paper, CircularProgress, Alert } from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { Box, Button, TextField, Typography, Container, Paper, CircularProgress, Alert, Divider } from '@mui/material';
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -42,13 +41,32 @@ const Login = ({ onLogin }) => {
 
     return (
         <Container component="main" maxWidth="xs" sx={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Paper elevation={6} sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', borderRadius: 3 }}>
-                <Box sx={{ m: 1, bgcolor: 'primary.main', p: 2, borderRadius: '50%', display: 'flex' }}>
-                    <LockOutlinedIcon sx={{ color: 'white', fontSize: 32 }} />
+            <Paper
+                elevation={0}
+                sx={{
+                    p: 4,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: '100%',
+                    borderRadius: 3,
+                    border: '1px solid rgba(25, 118, 210, 0.12)',
+                    boxShadow: '0 4px 32px rgba(25, 118, 210, 0.08)',
+                }}
+            >
+                {/* Logo */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+                    <img src="/assets/img/logo.png" alt="Unacademy Logo" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
+                    <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: 0.5 }}>
+                        <span style={{ color: '#1976d2' }}>Unacademy</span>
+                    </Typography>
                 </Box>
-                <Typography component="h1" variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
-                    Admin Login
+
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    Sign in to the Admin Portal
                 </Typography>
+
+                <Divider sx={{ width: '100%', mb: 3, borderColor: 'rgba(25, 118, 210, 0.1)' }} />
 
                 {error && <Alert severity="error" sx={{ width: '100%', mb: 2 }}>{error}</Alert>}
 
@@ -83,10 +101,10 @@ const Login = ({ onLogin }) => {
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2, py: 1.5, fontSize: '1.1rem', fontWeight: 'bold' }}
+                        sx={{ mt: 3, mb: 2, py: 1.5, fontSize: '1rem', fontWeight: 'bold' }}
                         disabled={loading}
                     >
-                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
+                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
                     </Button>
                 </Box>
             </Paper>

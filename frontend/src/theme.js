@@ -4,20 +4,20 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1a237e', // Deep Indigo
-      light: '#534bae',
-      dark: '#000051',
+      main: '#1976d2', // MUI Default Blue
+      light: '#42a5f5',
+      dark: '#1565c0',
     },
     secondary: {
-      main: '#c5a059', // Premium Gold
-      light: '#f9d189',
-      dark: '#93722c',
+      main: 'rgb(0, 192, 122)', // Custom Green
+      light: 'rgb(51, 210, 148)',
+      dark: 'rgb(0, 140, 89)',
     },
     success: {
-      main: '#2e7d32', // Emerald Green
+      main: 'rgb(0, 192, 122)',
     },
     background: {
-      default: '#f0f2f5',
+      default: '#ffffff',
       paper: '#ffffff',
     },
     text: {
@@ -54,11 +54,14 @@ const theme = createTheme({
           padding: '10px 28px',
           boxShadow: 'none',
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(26, 35, 126, 0.2)',
+            boxShadow: '0 4px 12px rgba(25, 118, 210, 0.25)',
           },
         },
         containedPrimary: {
-          background: 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
+          background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+        },
+        containedSecondary: {
+          background: 'linear-gradient(135deg, rgb(0, 192, 122) 0%, rgb(0, 140, 89) 100%)',
         },
       },
     },
@@ -66,17 +69,25 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.05)',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 2px 16px 0 rgba(25, 118, 210, 0.06)',
+          border: '1px solid rgba(25, 118, 210, 0.08)',
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backgroundColor: '#ffffff',
           backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+          borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+          boxShadow: '0 1px 8px rgba(25, 118, 210, 0.08)',
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 6,
         },
       },
     },
