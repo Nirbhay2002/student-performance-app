@@ -105,3 +105,69 @@ exports.getClassSubjectAverages = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Get class-average % per test name, per subject (for test performance chart)
+// Query params: subject (required), startDate, endDate (optional ISO date strings)
+exports.getTestPerformance = async (req, res) => {
+    try {
+        const { subject, startDate, endDate } = req.query;
+
+        const VALID_SUBJECTS = ['physics', 'chemistry', 'maths', 'botany', 'zoology'];
+        if (!subject || !VALID_SUBJECTS.includes(subject)) {
+            return res.status(400).json({ error: `subject must be one of: ${VALID_SUBJECTS.join(', ')}` });
+        }
+
+        // Build date filter if provided
+        const dateFilter = {};
+        if (startDate) dateFilter.$gte = new Date(startDate);
+        if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            dateFilter.$lte = end;
+        }
+
+        const matchStage = {
+            [`scores.${subject}`]: { $ne: null, $exists: true },
+        };
+        if (startDate || endDate) matchStage.date = dateFilter;
+
+        const agg = await Marks.aggregate([
+            { $match: matchStage },
+            {
+                $project: {
+                    studentId: 1,
+                    testName: `$testNames.${subject}`,
+                    percentage: {
+                        $cond: {
+                            if: { $gt: [`$maxScores.${subject}`, 0] },
+                            then: { $multiply: [{ $divide: [`$scores.${subject}`, `$maxScores.${subject}`] }, 100] },
+                            else: null
+                        }
+                    }
+                }
+            },
+            { $match: { percentage: { $ne: null }, testName: { $nin: [null, '', 'Combined test'] } } },
+            {
+                $group: {
+                    _id: '$testName',
+                    avgPct: { $avg: '$percentage' },
+                    studentIds: { $addToSet: '$studentId' }
+                }
+            },
+            { $sort: { avgPct: -1 } },
+            {
+                $project: {
+                    _id: 0,
+                    testName: '$_id',
+                    avgPct: { $round: ['$avgPct', 1] },
+                    count: { $size: '$studentIds' }
+                }
+            }
+        ]);
+
+        res.json(agg);
+    } catch (err) {
+        console.error('❌ Error in getTestPerformance:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+};

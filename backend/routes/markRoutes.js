@@ -8,5 +8,6 @@ const authMiddleware = require('../utils/authMiddleware');
 router.post('/', authMiddleware, markController.addMark);
 router.post('/bulk', authMiddleware, upload.single('file'), markController.bulkUpload);
 router.get('/class-subject-averages', authMiddleware, markController.getClassSubjectAverages);
+router.get('/test-performance', authMiddleware, markController.getTestPerformance);
 
 module.exports = router;

@@ -25,8 +25,39 @@ const seed = async () => {
         const streams = ['Medical', 'Non-Medical'];
         const batches = ['Growth', 'Excel', 'Conquer'];
 
-        console.log('🌱 Generating 600 students...');
+        // ─── Rich, subject-specific test names ────────────────────────────────
+        const physicTests = [
+            'Kinematics DPP', 'Laws of Motion Test', 'Work & Energy Quiz',
+            'Rotational Mechanics', 'Gravitation Unit Test', 'Thermodynamics Mock',
+            'Waves & Oscillations', 'Electrostatics Test', 'Current Electricity',
+            'Optics Chapter Test', 'Modern Physics Mock', 'Magnetic Effects Test'
+        ];
+        const chemistryTests = [
+            'Mole Concept Test', 'Chemical Bonding Quiz', 'Redox Reactions DPP',
+            'Equilibrium Mock', 'Organic Basics Test', 'Hydrocarbons Unit Test',
+            'Aldehydes & Ketones', 'Coordination Chemistry', 'p-Block Elements',
+            's-Block Revision', 'Electrochemistry Test', 'Polymers Final Mock'
+        ];
+        const mathsTests = [
+            'Quadratic Equations', 'Sequences & Series', 'Complex Numbers Test',
+            'Permutations & Combi', 'Binomial Theorem', 'Trigonometry Mock',
+            'Matrices & Determinants', 'Differential Calculus', 'Integral Calculus',
+            'Vectors & 3D Test', 'Probability Quiz', 'Statistics Unit Test'
+        ];
+        const botanyTests = [
+            'Cell Biology Test', 'Plant Morphology Quiz', 'Anatomy of Plants',
+            'Cell Division Mock', 'Mineral Nutrition DPP', 'Photosynthesis Test',
+            'Respiration in Plants', 'Plant Growth Chapter', 'Reproduction in Plants',
+            'Anatomy Revision', 'Ecology Mock', 'Genetics & Evolution'
+        ];
+        const zoologyTests = [
+            'Animal Kingdom Test', 'Structural Organisation', 'Human Physiology Mock',
+            'Digestion & Absorption', 'Breathing & Exchange', 'Body Fluids Test',
+            'Excretory Products', 'Locomotion & Movement', 'Neural Control Mock',
+            'Chemical Coordination', 'Reproduction in Animals', 'Genetics Revision'
+        ];
 
+        // Monthly exam series with dates spread over 12 months
         const exams = [
             'April Unit Test', 'May Unit Test', 'June Mid-Term',
             'July Unit Test', 'August Unit Test', 'September Mid-Term',
@@ -34,94 +65,108 @@ const seed = async () => {
             'January Unit Test', 'February Unit Test', 'March Final Exam'
         ];
 
-        const testNames = ['Chapter 1', 'Kinematics', 'Combined test', 'Full test', 'Mock Exam 1', 'Organic Chem Basics'];
+        const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+        const jitter = (v, d) => Math.round(clamp(v + (Math.random() * d * 2 - d), 0, 100));
+
+        console.log('🌱 Generating 600 students with rich test data...');
 
         for (let i = 1; i <= 600; i++) {
-            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+            const firstName = rand(firstNames);
+            const lastName = rand(lastNames);
             const name = `${firstName} ${lastName} #${i}`;
             const stream = streams[Math.floor(Math.random() * streams.length)];
-            const batch = batches[Math.floor(Math.random() * batches.length)];
-            const trend = trends[Math.floor(Math.random() * trends.length)];
+            const batch = rand(batches);
+            const trend = rand(trends);
             const rollPrefix = stream === 'Medical' ? 'M' : 'NM';
             const roll = `${rollPrefix}${i.toString().padStart(3, '0')}`;
 
             const baseRank = Math.floor(Math.random() * 600) + 1;
-            const rankVariance = trend === 'improving' ? Math.floor(Math.random() * 50) + 10 :
-                trend === 'declining' ? -(Math.floor(Math.random() * 50) + 10) :
-                    Math.floor(Math.random() * 20) - 10;
-
-            const prevRank = Math.max(1, Math.min(600, baseRank + rankVariance));
+            const rankVariance = trend === 'improving' ? Math.floor(Math.random() * 50) + 10
+                : trend === 'declining' ? -(Math.floor(Math.random() * 50) + 10)
+                    : Math.floor(Math.random() * 20) - 10;
+            const prevRank = clamp(baseRank + rankVariance, 1, 600);
             const bestRankSimulated = Math.max(1, Math.min(baseRank, prevRank) - Math.floor(Math.random() * 30));
 
             const student = new Student({
-                name,
-                rollNumber: roll,
+                name, rollNumber: roll,
                 email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${i}@example.com`,
-                batch,
-                stream,
-                performanceScore: 0,
-                averageMarks: 0,
-                category: 'Medium',
-                currentRank: baseRank,
-                previousRank: prevRank,
-                bestRank: bestRankSimulated,
-                previousPerformanceScore: trend === 'improving' ? Math.random() * 60 :
-                    trend === 'declining' ? 70 + Math.random() * 20 :
-                        50 + Math.random() * 30
+                batch, stream,
+                performanceScore: 0, averageMarks: 0, category: 'Medium',
+                currentRank: baseRank, previousRank: prevRank, bestRank: bestRankSimulated,
+                previousPerformanceScore:
+                    trend === 'improving' ? Math.random() * 60
+                        : trend === 'declining' ? 70 + Math.random() * 20
+                            : 50 + Math.random() * 30
             });
             await student.save();
 
-            let examRecords = [];
+            // ── Subject strength offsets: each trend has a weak & strong subject ──
+            // This creates VISIBLE variance in the radar chart per subject
+            const subjectBias = {
+                high: { physics: +5, chemistry: +3, maths: +4, botany: +6, zoology: +5 },
+                average: { physics: 0, chemistry: +2, maths: -3, botany: +1, zoology: -2 },
+                improving: { physics: -8, chemistry: -5, maths: -10, botany: -6, zoology: -7 }, // will improve over time
+                declining: { physics: +2, chemistry: -4, maths: +3, botany: -5, zoology: +1 },
+                struggling: { physics: -12, chemistry: -8, maths: -15, botany: -10, zoology: -9 },
+                random: { physics: 0, chemistry: 0, maths: 0, botany: 0, zoology: 0 }
+            };
+            const bias = subjectBias[trend];
+
+            const examRecords = [];
 
             for (let j = 0; j < exams.length; j++) {
-                let baseScore;
-                const progress = j / (exams.length - 1);
+                const progress = j / (exams.length - 1); // 0 → 1
 
+                let base;
                 switch (trend) {
-                    case 'high': baseScore = 88 + Math.random() * 7; break;
-                    case 'average': baseScore = 72 + Math.random() * 8; break;
-                    case 'improving': baseScore = 60 + (progress * 25) + (Math.random() * 5); break;
-                    case 'declining': baseScore = 90 - (progress * 30) + (Math.random() * 5); break;
-                    case 'struggling': baseScore = 45 + Math.random() * 15; break;
-                    default: baseScore = 60 + Math.random() * 35;
+                    case 'high': base = 82 + Math.random() * 10; break;
+                    case 'average': base = 68 + Math.random() * 10; break;
+                    case 'improving': base = 48 + progress * 35 + Math.random() * 5; break;
+                    case 'declining': base = 88 - progress * 35 + Math.random() * 5; break;
+                    case 'struggling': base = 35 + Math.random() * 18; break;
+                    default: base = 55 + Math.random() * 38;
                 }
+                base = clamp(base, 10, 100);
+
+                // Physics test: pick from physics test names (cycle through for variety)
+                const phyTest = physicTests[j % physicTests.length];
+                const chemTest = chemistryTests[j % chemistryTests.length];
+                const mathTest = mathsTests[j % mathsTests.length];
+                const botTest = botanyTests[j % botanyTests.length];
+                const zooTest = zoologyTests[j % zoologyTests.length];
 
                 const marks = new Marks({
                     studentId: student._id,
-                    examName: exams[j],
                     testNames: {
-                        physics: testNames[Math.floor(Math.random() * testNames.length)],
-                        chemistry: testNames[Math.floor(Math.random() * testNames.length)],
-                        maths: stream === 'Non-Medical' ? testNames[Math.floor(Math.random() * testNames.length)] : 'Combined test',
-                        botany: stream === 'Medical' ? testNames[Math.floor(Math.random() * testNames.length)] : 'Combined test',
-                        zoology: stream === 'Medical' ? testNames[Math.floor(Math.random() * testNames.length)] : 'Combined test'
+                        physics: phyTest,
+                        chemistry: chemTest,
+                        maths: stream === 'Non-Medical' ? mathTest : null,
+                        botany: stream === 'Medical' ? botTest : null,
+                        zoology: stream === 'Medical' ? zooTest : null,
                     },
                     date: new Date(Date.now() - (exams.length - 1 - j) * 30 * 24 * 60 * 60 * 1000),
                     scores: {
-                        physics: Math.round(baseScore + (Math.random() * 6 - 3)),
-                        chemistry: Math.round(baseScore + (Math.random() * 6 - 3)),
-                        maths: stream === 'Non-Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
-                        botany: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
-                        zoology: stream === 'Medical' ? Math.round(baseScore + (Math.random() * 6 - 3)) : 0,
+                        physics: jitter(base + bias.physics, 8),
+                        chemistry: jitter(base + bias.chemistry, 8),
+                        maths: stream === 'Non-Medical' ? jitter(base + bias.maths, 8) : null,
+                        botany: stream === 'Medical' ? jitter(base + bias.botany, 8) : null,
+                        zoology: stream === 'Medical' ? jitter(base + bias.zoology, 8) : null,
                     },
                     maxScores: {
-                        physics: 100,
-                        chemistry: 100,
-                        maths: stream === 'Non-Medical' ? 100 : 0,
-                        botany: stream === 'Medical' ? 100 : 0,
-                        zoology: stream === 'Medical' ? 100 : 0,
+                        physics: 100, chemistry: 100,
+                        maths: stream === 'Non-Medical' ? 100 : 100,
+                        botany: stream === 'Medical' ? 100 : 100,
+                        zoology: stream === 'Medical' ? 100 : 100,
                     },
-                    attendance: Math.round(80 + Math.random() * 20),
-                    remarks: `Auto-generated ${trend} trend`
+                    attendance: Math.round(clamp(80 + Math.random() * 20, 60, 100)),
+                    remarks: `${trend} trend · ${exams[j]}`
                 });
                 examRecords.push(marks);
             }
 
-            // Save all marks for this student
             await Marks.insertMany(examRecords);
 
-            // Calculate overall performance once for seeding
             const perfScore = calculatePerformance(examRecords, stream);
             const avgMarks = calculateAverageMarks(examRecords, stream);
 
@@ -130,13 +175,19 @@ const seed = async () => {
                 averageMarks: avgMarks
             });
 
-            if (i % 50 === 0) console.log(`🚀 Progress: ${i}/600 students seeded...`);
+            if (i % 100 === 0) console.log(`🚀 Progress: ${i}/600 students seeded...`);
         }
 
         console.log('🔄 Recalculating Percentile Categories...');
         await recalculateAllCategories(Student);
 
-        console.log('\n✨ RESEED COMPLETE: 600 Students generated with full exam history.');
+        const best = await Student.countDocuments({ category: 'Best' });
+        const medium = await Student.countDocuments({ category: 'Medium' });
+        const worst = await Student.countDocuments({ category: 'Worst' });
+
+        console.log(`\n✨ RESEED COMPLETE`);
+        console.log(`   Best: ${best} · Medium: ${medium} · Worst: ${worst}`);
+        console.log(`   12 physics tests · 12 chemistry tests · 12 maths/botany/zoology tests`);
         process.exit(0);
     } catch (err) {
         console.error('❌ SEED ERROR:', err);

@@ -9,6 +9,7 @@ import PerformanceDistributionChart from './dashboard/PerformanceDistributionCha
 import ReportCardModal from './dashboard/ReportCardModal';
 import ScoreRangeBreakdown from './dashboard/ScoreRangeBreakdown';
 import SubjectRadarChart from './dashboard/SubjectRadarChart';
+import TestPerformanceChart from './dashboard/TestPerformanceChart';
 
 const Dashboard = ({ navigate }) => {
   const [students, setStudents] = useState([]);
@@ -104,6 +105,9 @@ const Dashboard = ({ navigate }) => {
           <SubjectRadarChart />
         </Box>
       </Box>
+
+      {/* Full-width test name performance chart */}
+      <TestPerformanceChart />
 
       <ReportCardModal
         open={!!selectedReport}
