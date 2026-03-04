@@ -6,8 +6,9 @@ import { downloadPDF } from '../utils';
 // Sub-components
 import StatsCards from './dashboard/StatsCards';
 import PerformanceDistributionChart from './dashboard/PerformanceDistributionChart';
-import StudentIntelligenceList from './dashboard/StudentIntelligenceList';
 import ReportCardModal from './dashboard/ReportCardModal';
+import ScoreRangeBreakdown from './dashboard/ScoreRangeBreakdown';
+import SubjectRadarChart from './dashboard/SubjectRadarChart';
 
 const Dashboard = ({ navigate }) => {
   const [students, setStudents] = useState([]);
@@ -64,10 +65,7 @@ const Dashboard = ({ navigate }) => {
     }
   };
 
-  // Optimization: Only show top/bottom for the intelligence list
-  const sortedStudents = [...students].sort((a, b) => (b.performanceScore || 0) - (a.performanceScore || 0));
-  const top10 = sortedStudents.slice(0, 10);
-  const bottom10 = sortedStudents.slice(-10).reverse();
+
 
   if (isLoading) {
     return (
@@ -94,31 +92,18 @@ const Dashboard = ({ navigate }) => {
 
       <StatsCards students={students} navigate={navigate} />
 
-      <Grid container spacing={4}>
-        <Grid item xs={12} lg={8}>
+      {/* All 3 charts in a single row — flex so each fills equal width */}
+      <Box sx={{ display: 'flex', gap: 4, alignItems: 'stretch' }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <PerformanceDistributionChart students={students} navigate={navigate} />
-        </Grid>
-        <Grid item xs={12} lg={4}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <StudentIntelligenceList
-              title="🏆 Top Achievers"
-              students={top10}
-              onStudentClick={handleOpenReport}
-              getCategoryColor={getCategoryColor}
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={12} lg={4}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <StudentIntelligenceList
-              title="⚠️ Need Attention"
-              students={bottom10}
-              onStudentClick={handleOpenReport}
-              getCategoryColor={getCategoryColor}
-            />
-          </Box>
-        </Grid>
-      </Grid>
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <ScoreRangeBreakdown students={students} />
+        </Box>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <SubjectRadarChart />
+        </Box>
+      </Box>
 
       <ReportCardModal
         open={!!selectedReport}
