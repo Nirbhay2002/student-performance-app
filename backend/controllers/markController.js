@@ -70,3 +70,38 @@ exports.bulkUpload = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Get class-wide average percentage per subject (for radar chart)
+exports.getClassSubjectAverages = async (req, res) => {
+    try {
+        const subjects = ['physics', 'chemistry', 'maths', 'botany', 'zoology'];
+
+        const result = {};
+
+        await Promise.all(subjects.map(async (subject) => {
+            // Only include marks where this subject score is not null
+            const agg = await Marks.aggregate([
+                { $match: { [`scores.${subject}`]: { $ne: null, $exists: true } } },
+                {
+                    $project: {
+                        percentage: {
+                            $cond: {
+                                if: { $and: [{ $gt: [`$maxScores.${subject}`, 0] }] },
+                                then: { $multiply: [{ $divide: [`$scores.${subject}`, `$maxScores.${subject}`] }, 100] },
+                                else: null
+                            }
+                        }
+                    }
+                },
+                { $match: { percentage: { $ne: null } } },
+                { $group: { _id: null, avg: { $avg: '$percentage' } } }
+            ]);
+            result[subject] = agg.length > 0 ? Math.round(agg[0].avg * 10) / 10 : 0;
+        }));
+
+        res.json(result);
+    } catch (err) {
+        console.error('❌ Error in getClassSubjectAverages:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+};

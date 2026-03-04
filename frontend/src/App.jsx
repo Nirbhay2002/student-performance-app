@@ -58,9 +58,13 @@ function App() {
       <CssBaseline />
       <AppBar position="sticky" elevation={0} sx={{ color: 'text.primary' }}>
         <Toolbar sx={{ maxWidth: 1440, width: '100%', mx: 'auto' }}>
-          <Typography variant="h6" color="primary" sx={{ flexGrow: 1, fontWeight: 900, letterSpacing: 1 }}>
-            STUDENT<span style={{ color: '#c5a059' }}>PRO</span>
-          </Typography>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Inline SVG Logo */}
+           <img src="/assets/img/logo.png" alt="Unacademy Logo" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
+            <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: 0.5, color: '#1976d2' }}>
+              Unacademy
+            </Typography>
+          </Box>
           <Tabs
             value={tabValue}
             onChange={onTabClick}
