@@ -16,6 +16,60 @@ const getAttendancePct = async (studentId) => {
     return Math.round((present / sessions.length) * 100);
 };
 
+// GET /api/attendance/student-summary
+// Returns attendance % for every student who has at least one session
+// Optional query: startDate, endDate
+exports.getStudentSummary = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const dateFilter = {};
+        if (startDate) { const s = new Date(startDate); s.setUTCHours(0, 0, 0, 0); dateFilter.$gte = s; }
+        if (endDate) { const e = new Date(endDate); e.setUTCHours(23, 59, 59, 999); dateFilter.$lte = e; }
+
+        const matchStage = Object.keys(dateFilter).length ? { date: dateFilter } : {};
+
+        const agg = await Attendance.aggregate([
+            { $match: matchStage },
+            { $unwind: '$records' },
+            {
+                $group: {
+                    _id: '$records.studentId',
+                    totalSessions: { $sum: 1 },
+                    presentCount: { $sum: { $cond: [{ $eq: ['$records.status', 'Present'] }, 1, 0] } }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'students',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'student'
+                }
+            },
+            { $unwind: '$student' },
+            {
+                $project: {
+                    _id: 0,
+                    studentId: '$_id',
+                    name: '$student.name',
+                    rollNumber: '$student.rollNumber',
+                    totalSessions: 1,
+                    presentCount: 1,
+                    attendancePct: {
+                        $round: [{ $multiply: [{ $divide: ['$presentCount', '$totalSessions'] }, 100] }, 0]
+                    }
+                }
+            },
+            { $sort: { name: 1 } }
+        ]);
+
+        res.json(agg);
+    } catch (err) {
+        console.error('❌ Error in getStudentSummary:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+};
+
 // Helper: recalculate performance for a list of student IDs
 const recalcStudents = async (studentIds) => {
     for (const sid of studentIds) {

@@ -46,6 +46,11 @@ export const studentService = {
         return res.data;
     },
 
+    getStudentSummary: async (params = {}) => {
+        const res = await api.get('/attendance/student-summary', { params });
+        return res.data;
+    },
+
     deleteAttendance: async (id) => {
         const res = await api.delete(`/attendance/${id}`);
         return res.data;
