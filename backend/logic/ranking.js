@@ -85,34 +85,52 @@ const calculateAverageMarks = (allMarks, stream = 'Non-Medical') => {
 };
 
 const recalculateAllCategories = async (StudentModel) => {
-  const students = await StudentModel.find().sort({ performanceScore: -1 });
+  // Fetch all students (lean for speed)
+  const students = await StudentModel.find().lean();
   const total = students.length;
   if (total === 0) return;
 
-  const top25Index = Math.floor(total * 0.25);
-  const bottom25Index = Math.floor(total * 0.75);
+  // Group by stream + batch
+  const groups = {};
+  students.forEach(s => {
+    const key = `${s.stream || 'Unknown'}__${s.batch || 'Unknown'}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(s);
+  });
 
-  const bulkOps = students.map((student, index) => {
-    const newRank = index + 1;
-    let category = 'Medium';
-    if (index < top25Index) category = 'Best';
-    else if (index >= bottom25Index) category = 'Worst';
+  const bulkOps = [];
 
-    // previousRank = rank BEFORE this recalculation (student.currentRank holds the old value)
-    const previousRank = student.currentRank || newRank;
-    const bestRank = Math.min(student.bestRank || 999999, newRank);
+  Object.entries(groups).forEach(([key, groupStudents]) => {
+    // Sort by performanceScore descending within each group
+    groupStudents.sort((a, b) => (b.performanceScore || 0) - (a.performanceScore || 0));
 
-    return {
-      updateOne: {
-        filter: { _id: student._id },
-        update: { category, currentRank: newRank, previousRank, bestRank }
-      }
-    };
+    const n = groupStudents.length;
+    const top25 = Math.floor(n * 0.25);
+    const bottom25 = Math.floor(n * 0.75);
+
+    groupStudents.forEach((student, index) => {
+      const newRank = index + 1;
+      let category = 'Medium';
+      if (index < top25) category = 'Best';
+      if (index >= bottom25) category = 'Worst';
+
+      const previousRank = student.currentRank || newRank;
+      const bestRank = Math.min(student.bestRank || 999999, newRank);
+
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: student._id },
+          update: { category, currentRank: newRank, previousRank, bestRank }
+        }
+      });
+    });
+
+    console.log(`[Ranking] ${key}: ${n} students ranked`);
   });
 
   if (bulkOps.length > 0) {
     await StudentModel.bulkWrite(bulkOps);
-    console.log(`[Ranking] Recalculated categories for ${total} students (Percentile-based)`);
+    console.log(`[Ranking] ✅ Group-scoped categories recalculated for ${total} students across ${Object.keys(groups).length} groups`);
   }
 };
 

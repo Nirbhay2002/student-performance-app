@@ -19,7 +19,9 @@ import {
     CircularProgress,
     Button,
     Popover,
-    Divider
+    Divider,
+    ToggleButtonGroup,
+    ToggleButton
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -43,7 +45,7 @@ const StudentRecords = ({ navParams }) => {
 
     // Filters
     const [searchName, setSearchName] = useState('');
-    const [filterStream, setFilterStream] = useState('All');
+    const [filterStream, setFilterStream] = useState('Non-Medical');
     const [filterBatch, setFilterBatch] = useState('All');
     const [filterCategory, setFilterCategory] = useState(navParams?.category || 'All');
 
@@ -352,19 +354,6 @@ const StudentRecords = ({ navParams }) => {
                         <TextField
                             fullWidth
                             select
-                            label="Stream"
-                            value={filterStream}
-                            onChange={(e) => { setFilterStream(e.target.value); setPage(0); }}
-                        >
-                            <MenuItem value="All">All Streams</MenuItem>
-                            <MenuItem value="Medical">Medical (PCB)</MenuItem>
-                            <MenuItem value="Non-Medical">Non-Medical (PCM)</MenuItem>
-                        </TextField>
-                    </Grid>
-                    <Grid item xs={6} md={2}>
-                        <TextField
-                            fullWidth
-                            select
                             label="Batch"
                             value={filterBatch}
                             onChange={(e) => { setFilterBatch(e.target.value); setPage(0); }}
@@ -374,7 +363,7 @@ const StudentRecords = ({ navParams }) => {
                             ))}
                         </TextField>
                     </Grid>
-                    <Grid item xs={6} md={4}>
+                    <Grid item xs={6} md={3}>
                         <TextField
                             fullWidth
                             select
@@ -387,6 +376,37 @@ const StudentRecords = ({ navParams }) => {
                             <MenuItem value="Medium">Medium</MenuItem>
                             <MenuItem value="Worst">Worst</MenuItem>
                         </TextField>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <ToggleButtonGroup
+                            value={filterStream}
+                            exclusive
+                            onChange={(_, val) => { if (val) { setFilterStream(val); setPage(0); } }}
+                            size="large"
+                            fullWidth
+                            sx={{ height: 50 }}
+                        >
+                            <ToggleButton
+                                value="Non-Medical"
+                                sx={{
+                                    fontWeight: 700,
+                                    fontSize: '0.72rem',
+                                    '&.Mui-selected': { bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } }
+                                }}
+                            >
+                                JEE
+                            </ToggleButton>
+                            <ToggleButton
+                                value="Medical"
+                                sx={{
+                                    fontWeight: 700,
+                                    fontSize: '0.72rem',
+                                    '&.Mui-selected': { bgcolor: 'primary.main', color: 'white', '&:hover': { bgcolor: 'primary.dark' } }
+                                }}
+                            >
+                                NEET
+                            </ToggleButton>
+                        </ToggleButtonGroup>
                     </Grid>
                 </Grid>
             </Paper>
@@ -401,11 +421,10 @@ const StudentRecords = ({ navParams }) => {
                 <Table>
                     <TableHead sx={{ bgcolor: 'primary.main' }}>
                         <TableRow>
-                            <TableCell sx={{ color: 'white', fontWeight: 700 }}>Name & Roll</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 700 }}>Stream</TableCell>
+                            <TableCell sx={{ color: 'white', fontWeight: 700 }}>Name &amp; Roll</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 700 }}>Batch</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Performance</TableCell>
-                            <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Rank</TableCell>
+                            <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Group Rank</TableCell>
                             <TableCell sx={{ color: 'white', fontWeight: 700 }} align="center">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -420,15 +439,6 @@ const StudentRecords = ({ navParams }) => {
                                 <TableCell>
                                     <Typography variant="subtitle2" fontWeight={700}>{student.name}</Typography>
                                     <Typography variant="caption" color="textSecondary">{student.rollNumber}</Typography>
-                                </TableCell>
-                                <TableCell>
-                                    <Chip
-                                        label={student.stream}
-                                        size="small"
-                                        variant="outlined"
-                                        color={student.stream === 'Medical' ? 'secondary' : 'default'}
-                                        sx={{ fontWeight: 600, fontSize: '0.7rem' }}
-                                    />
                                 </TableCell>
                                 <TableCell>
                                     <Typography variant="body2">{student.batch}</Typography>
@@ -447,9 +457,19 @@ const StudentRecords = ({ navParams }) => {
                                     />
                                 </TableCell>
                                 <TableCell align="center">
-                                    <Typography variant="body2" fontWeight={700} color="primary.main">
-                                        #{student.rank || '-'}
-                                    </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.75 }}>
+                                        <Typography variant="body2" fontWeight={700} color="primary.main">
+                                            #{student.currentRank || '-'}
+                                        </Typography>
+                                        {filterBatch === 'All' && student.batch && (
+                                            <Chip
+                                                label={student.batch}
+                                                size="small"
+                                                variant="outlined"
+                                                sx={{ fontSize: '0.6rem', fontWeight: 700, height: 18, px: 0.25 }}
+                                            />
+                                        )}
+                                    </Box>
                                 </TableCell>
                                 <TableCell align="center">
                                     <IconButton size="small" color="secondary" onClick={(e) => { e.stopPropagation(); setSelectedPerformanceStudent(student); }} title="View Performance Velocity">

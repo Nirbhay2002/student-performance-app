@@ -38,21 +38,20 @@ exports.getStudents = async (req, res) => {
             query.performanceScore = { $lte: maxScore };
         }
 
+        // Sort: alphabetical when no category filter; rank-ascending when category is filtered
+        const sortOrder = category !== 'All' ? { currentRank: 1 } : { name: 1 };
+
         if (page === null) {
-            const students = await Student.find(query).lean();
+            const students = await Student.find(query).sort(sortOrder).lean();
             return res.json({ students, total: students.length });
         }
 
         const total = await Student.countDocuments(query);
-        const studentsRaw = await Student.find(query)
+        const students = await Student.find(query)
+            .sort(sortOrder)
             .skip(page * limit)
             .limit(limit)
             .lean();
-
-        const students = await Promise.all(studentsRaw.map(async (s) => {
-            const higherScores = await Student.countDocuments({ performanceScore: { $gt: s.performanceScore || 0 } });
-            return { ...s, rank: higherScores + 1 };
-        }));
 
         res.json({
             students,
