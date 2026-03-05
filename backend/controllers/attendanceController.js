@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Attendance = require('../models/Attendance');
 const Student = require('../models/Student');
 const Marks = require('../models/Marks');
@@ -70,26 +71,81 @@ exports.getStudentSummary = async (req, res) => {
     }
 };
 
-// Helper: recalculate performance for a list of student IDs
-const recalcStudents = async (studentIds) => {
-    for (const sid of studentIds) {
-        const student = await Student.findById(sid);
-        if (!student) continue;
+// Helper: batch-compute attendance % for multiple students in ONE aggregate
+const batchGetAttendancePct = async (studentIds) => {
+    const objectIds = studentIds.map(id =>
+        typeof id === 'string' ? new mongoose.Types.ObjectId(id) : id
+    );
 
-        const allMarks = await Marks.find({ studentId: sid });
-        const attendancePct = await getAttendancePct(sid);
+    const results = await Attendance.aggregate([
+        { $match: { 'records.studentId': { $in: objectIds } } },
+        { $unwind: '$records' },
+        { $match: { 'records.studentId': { $in: objectIds } } },
+        {
+            $group: {
+                _id: '$records.studentId',
+                total: { $sum: 1 },
+                present: { $sum: { $cond: [{ $eq: ['$records.status', 'Present'] }, 1, 0] } }
+            }
+        }
+    ]);
 
-        const score = calculatePerformance(allMarks, student.stream, attendancePct);
-        const avgMarks = calculateAverageMarks(allMarks, student.stream);
-
-        await Student.findByIdAndUpdate(sid, {
-            previousPerformanceScore: student.performanceScore,
-            performanceScore: score,
-            averageMarks: avgMarks,
-        });
-    }
-    await recalculateAllCategories(Student);
+    // Build a map: studentId (string) -> pct
+    const map = {};
+    results.forEach(r => {
+        map[r._id.toString()] = r.total > 0 ? Math.round((r.present / r.total) * 100) : 0;
+    });
+    return map;
 };
+
+// Optimised batch recalculation: 4 DB ops total regardless of class size
+const recalcStudents = async (studentIds) => {
+    if (!studentIds || studentIds.length === 0) return;
+
+    // 1. Batch-fetch attendance % for all students in one aggregate
+    const attendancePctMap = await batchGetAttendancePct(studentIds);
+
+    // 2. Batch-fetch all marks for all students in one query
+    const allMarksArr = await Marks.find({ studentId: { $in: studentIds } }).lean();
+    const marksByStudent = {};
+    allMarksArr.forEach(m => {
+        const key = m.studentId.toString();
+        if (!marksByStudent[key]) marksByStudent[key] = [];
+        marksByStudent[key].push(m);
+    });
+
+    // 3. Batch-fetch all student documents in one query
+    const students = await Student.find({ _id: { $in: studentIds } }).lean();
+
+    // 4. Compute scores and write all updates in a single bulkWrite
+    const bulkOps = students.map(student => {
+        const sid = student._id.toString();
+        const marks = marksByStudent[sid] || [];
+        const attendancePct = sid in attendancePctMap ? attendancePctMap[sid] : null;
+
+        const score = calculatePerformance(marks, student.stream, attendancePct);
+        const avgMarks = calculateAverageMarks(marks, student.stream);
+
+        return {
+            updateOne: {
+                filter: { _id: student._id },
+                update: {
+                    previousPerformanceScore: student.performanceScore,
+                    performanceScore: score,
+                    averageMarks: avgMarks,
+                }
+            }
+        };
+    });
+
+    if (bulkOps.length > 0) await Student.bulkWrite(bulkOps);
+
+    // 5. Recalculate category buckets (Best/Medium/Worst) across all students
+    await recalculateAllCategories(Student);
+
+    console.log(`[Attendance] ✅ Recalculated scores for ${students.length} students in 4 DB ops`);
+};
+
 
 // POST /api/attendance
 // Body: { date, batch, stream, records: [{ studentId, status }] }
