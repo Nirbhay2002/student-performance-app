@@ -28,5 +28,26 @@ export const studentService = {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         return res.data;
-    }
+    },
+
+    // Attendance Portal
+    saveAttendance: async (payload) => {
+        const res = await api.post('/attendance', payload);
+        return res.data;
+    },
+
+    getAttendance: async (params = {}) => {
+        const res = await api.get('/attendance', { params });
+        return res.data;
+    },
+
+    getStudentAttendance: async (studentId) => {
+        const res = await api.get(`/attendance/student/${studentId}`);
+        return res.data;
+    },
+
+    deleteAttendance: async (id) => {
+        const res = await api.delete(`/attendance/${id}`);
+        return res.data;
+    },
 };

@@ -22,7 +22,7 @@ const getEffectiveTotalScore = (m) => {
     .reduce((acc, v) => acc + (v !== null && v !== undefined ? v : 0), 0);
 };
 
-const calculatePerformance = (allMarks, stream = 'Non-Medical') => {
+const calculatePerformance = (allMarks, stream = 'Non-Medical', attendancePct = undefined) => {
   if (!allMarks || allMarks.length === 0) return 0;
 
   // Sort by date descending to get latest attendance
@@ -54,7 +54,11 @@ const calculatePerformance = (allMarks, stream = 'Non-Medical') => {
   });
 
   const academicScore = totalMax > 0 ? (totalObtained / totalMax) * 100 : 0;
-  const attendanceScore = latest.attendance || 0;
+
+  // Prefer dynamic attendance from Attendance collection; fall back to Marks field
+  const attendanceScore = (attendancePct !== null && attendancePct !== undefined)
+    ? attendancePct
+    : (latest.attendance || 0);
 
   // Final Score: 70% Academic + 20% Improvement + 10% Attendance
   const finalScore = (academicScore * 0.7) + (improvementScore * 0.2) + (attendanceScore * 0.1);
