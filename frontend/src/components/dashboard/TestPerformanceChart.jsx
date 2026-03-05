@@ -158,10 +158,10 @@ const TestPerformanceChart = () => {
             {/* Header */}
             <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" fontWeight={800} color="primary">
-                    Test Name Performance
+                    Chapter Wise Performance
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                    Class-wide average % per test · sorted highest → lowest · color indicates performance level
+                    Class-wide average % per chapter · sorted highest → lowest · color indicates performance level
                 </Typography>
             </Box>
 

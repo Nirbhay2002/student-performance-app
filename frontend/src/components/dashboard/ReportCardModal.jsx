@@ -128,7 +128,7 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
                 ) : reportData && (
                     <Box id="report-card" className="fade-in" sx={{ p: 4, border: '1px solid #e0e0e0', borderRadius: 1.5, bgcolor: '#fff', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                         <Box sx={{ textAlign: 'center', mb: 4 }}>
-                            <Typography variant="h5" fontWeight={900} color="primary" sx={{ letterSpacing: 2 }}>STUDENT<span style={{ color: '#c5a059' }}>PRO</span> ACADEMY</Typography>
+                            <Typography variant="h5" fontWeight={900} color="primary" sx={{ letterSpacing: 2 }}>Unacademy</Typography>
                             <Typography variant="subtitle2" color="textSecondary" sx={{ textTransform: 'uppercase', mt: 1 }}>Official Progression Report | 2025-26</Typography>
                         </Box>
 

@@ -1,4 +1,11 @@
 /* Global Refinements */
+
+/* Remove browser focus outlines on recharts SVGs */
+svg:focus,
+svg *:focus {
+    outline: none;
+}
+
 :root {
     --primary-gradient: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
     --secondary-gradient: linear-gradient(135deg, rgb(0, 192, 122) 0%, rgb(0, 140, 89) 100%);

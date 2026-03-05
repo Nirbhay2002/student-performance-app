@@ -96,10 +96,10 @@ const Dashboard = ({ navigate }) => {
       {/* All 3 charts in a single row — flex so each fills equal width */}
       <Box sx={{ display: 'flex', gap: 4, alignItems: 'stretch' }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <PerformanceDistributionChart students={students} navigate={navigate} />
+          <ScoreRangeBreakdown students={students} />
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <ScoreRangeBreakdown students={students} />
+          <PerformanceDistributionChart students={students} navigate={navigate} />
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <SubjectRadarChart />
