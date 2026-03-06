@@ -26,9 +26,11 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import { studentService } from '../services/studentService';
 import ReportCardModal from './dashboard/ReportCardModal';
 import PerformanceModal from './dashboard/PerformanceModal';
+import StudentAttendanceModal from './dashboard/StudentAttendanceModal';
 import { downloadPDF, generatePdfBlob } from '../utils';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -60,6 +62,9 @@ const StudentRecords = ({ navParams }) => {
 
     // Performance Modal
     const [selectedPerformanceStudent, setSelectedPerformanceStudent] = useState(null);
+
+    // Attendance Modal
+    const [attendanceStudent, setAttendanceStudent] = useState(null);
 
     // Batch Download State
     const [isDownloadingZip, setIsDownloadingZip] = useState(false);
@@ -475,6 +480,10 @@ const StudentRecords = ({ navParams }) => {
                                     <IconButton size="small" color="secondary" onClick={(e) => { e.stopPropagation(); setSelectedPerformanceStudent(student); }} title="View Performance Velocity">
                                         <TrendingUpIcon />
                                     </IconButton>
+                                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); setAttendanceStudent(student); }} title="View Attendance"
+                                        sx={{ color: '#1976d2', ml: 0.5 }}>
+                                        <EventNoteIcon />
+                                    </IconButton>
                                 </TableCell>
                             </TableRow>
                         )) : !loading && (
@@ -512,6 +521,12 @@ const StudentRecords = ({ navParams }) => {
                 open={!!selectedPerformanceStudent}
                 onClose={() => setSelectedPerformanceStudent(null)}
                 student={selectedPerformanceStudent}
+            />
+
+            <StudentAttendanceModal
+                open={!!attendanceStudent}
+                onClose={() => setAttendanceStudent(null)}
+                student={attendanceStudent}
             />
         </Box>
     );

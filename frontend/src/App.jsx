@@ -4,29 +4,35 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import theme from './theme';
 import { routes } from './routes';
 import Login from './components/Login';
+import AttendanceApp from './components/attendance/AttendanceApp';
 import './App.css';
 
 function App() {
   const [tabValue, setTabValue] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activePortal, setActivePortal] = useState('main'); // 'main' | 'attendance'
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const portal = localStorage.getItem('activePortal') || 'main';
     if (token) {
       setIsLoggedIn(true);
+      setActivePortal(portal);
     }
   }, []);
 
-  const handleLogin = (token) => {
+  const handleLogin = (token, portal = 'main') => {
+    localStorage.setItem('activePortal', portal);
+    setActivePortal(portal);
     setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('activePortal');
     setIsLoggedIn(false);
+    setActivePortal('main');
   };
-
-
 
   // Find the active component from routes
   const ActiveComponent = routes.find(r => r.id === tabValue)?.component || (() => null);
@@ -41,7 +47,7 @@ function App() {
 
   const onTabClick = (event, newValue) => {
     setTabValue(newValue);
-    setNavParams({}); // Clear params on manual tab switch
+    setNavParams({});
   };
 
   if (!isLoggedIn) {
@@ -53,14 +59,24 @@ function App() {
     );
   }
 
+  // ── Attendance Portal Shell ──────────────────────────────────────────────
+  if (activePortal === 'attendance') {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <AttendanceApp onLogout={handleLogout} />
+      </ThemeProvider>
+    );
+  }
+
+  // ── Main Admin Dashboard Shell ───────────────────────────────────────────
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="sticky" elevation={0} sx={{ color: 'text.primary' }}>
         <Toolbar sx={{ maxWidth: 1440, width: '100%', mx: 'auto' }}>
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-            {/* Inline SVG Logo */}
-           <img src="/assets/img/logo.png" alt="Unacademy Logo" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
+            <img src="/assets/img/logo.png" alt="Unacademy Logo" style={{ height: 40, width: 'auto', objectFit: 'contain' }} />
             <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: 0.5, color: '#1976d2' }}>
               Unacademy
             </Typography>

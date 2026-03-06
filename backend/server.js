@@ -30,10 +30,12 @@ async function startServer() {
     const authRoutes = require('./routes/authRoutes');
     const studentRoutes = require('./routes/studentRoutes');
     const markRoutes = require('./routes/markRoutes');
+    const attendanceRoutes = require('./routes/attendanceRoutes');
 
     app.use('/api/auth', authRoutes);
     app.use('/api/students', studentRoutes);
     app.use('/api/marks', markRoutes);
+    app.use('/api/attendance', attendanceRoutes);
 
     // LISTEN
     app.listen(PORT, () => {
