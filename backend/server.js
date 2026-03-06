@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -24,7 +25,7 @@ async function startServer() {
     console.log('✅ MongoDB Connected');
 
     // --- HEALTH CHECK ---
-    app.get('/health', (req, res) => res.json({ status: 'UP' }));
+    app.get('/api/health', (req, res) => res.json({ status: 'UP' }));
 
     // --- API ROUTES ---
     const authRoutes = require('./routes/authRoutes');
@@ -41,6 +42,17 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📡 API available at http://localhost:${PORT}/api`);
+
+      // --- SELF PING TO KEEP AWAKE (For Render Free Tier) ---
+      const EXTERNAL_URL = process.env.VITE_API_URL_PROD || `http://localhost:${PORT}`;
+      setInterval(async () => {
+        try {
+          console.log('💓 Sending self-ping to stay awake...');
+          await axios.get(`${EXTERNAL_URL}/api/health`);
+        } catch (err) {
+          console.error('❌ Self-ping failed:', err.message);
+        }
+      }, 14 * 60 * 1000); // 14 minutes
     });
 
   } catch (err) {
