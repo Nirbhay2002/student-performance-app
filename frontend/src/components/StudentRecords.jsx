@@ -36,6 +36,8 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import HiddenReportContent from './dashboard/HiddenReportContent';
 import DateRangeFilter from './dashboard/DateRangeFilter';
+import useStudentStore from '../store/useStudentStore';
+
 
 const StudentRecords = ({ navParams }) => {
     const [students, setStudents] = useState([]);
@@ -119,7 +121,7 @@ const StudentRecords = ({ navParams }) => {
     const fetchStudents = async () => {
         try {
             setLoading(true);
-            const data = await studentService.getAllStudents({
+            const data = await useStudentStore.getState().fetchStudents({
                 page,
                 limit: rowsPerPage,
                 search: debouncedSearch,
@@ -140,7 +142,7 @@ const StudentRecords = ({ navParams }) => {
     const handleOpenReport = async (student) => {
         setIsReportLoading(true);
         try {
-            const data = await studentService.getStudentPerformance(student._id);
+            const data = await useStudentStore.getState().fetchStudentPerformance(student._id);
             setReportData(data);
             setSelectedReport(student);
         } catch (err) {
@@ -187,7 +189,7 @@ const StudentRecords = ({ navParams }) => {
             let t = 1;
             while (allStudents.length < t) {
                 if (cancelDownloadRef.current) throw new Error("Cancelled by user");
-                const res = await studentService.getAllStudents({ page: p, limit: 100, search: debouncedSearch, stream: filterStream, batch: filterBatch, category: filterCategory });
+                const res = await useStudentStore.getState().fetchStudents({ page: p, limit: 100, search: debouncedSearch, stream: filterStream, batch: filterBatch, category: filterCategory });
                 allStudents = [...allStudents, ...res.students];
                 t = res.total;
                 p++;
@@ -202,7 +204,7 @@ const StudentRecords = ({ navParams }) => {
                 if (cancelDownloadRef.current) throw new Error("Cancelled by user");
 
                 const student = allStudents[i];
-                const reportData = await studentService.getStudentPerformance(student._id);
+                const reportData = await useStudentStore.getState().fetchStudentPerformance(student._id);
 
                 await new Promise(resolve => {
                     setBatchStudent(student);

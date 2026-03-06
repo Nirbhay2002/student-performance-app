@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Chip, Grid, CircularProgress } from '@mui/material';
 import { studentService } from '../services/studentService';
 import { downloadPDF } from '../utils';
+import useStudentStore from '../store/useStudentStore';
 
 // Sub-components
 import StatsCards from './dashboard/StatsCards';
@@ -25,7 +26,7 @@ const Dashboard = ({ navigate }) => {
   const fetchStudents = async () => {
     setIsLoading(true);
     try {
-      const data = await studentService.getAllStudents();
+      const data = await useStudentStore.getState().fetchStudents();
       setStudents(data.students);
     } catch (err) {
       alert(`Failed to load students: ${err.message}`);
@@ -37,7 +38,7 @@ const Dashboard = ({ navigate }) => {
   const handleOpenReport = async (student) => {
     setIsReportLoading(true);
     try {
-      const data = await studentService.getStudentPerformance(student._id);
+      const data = await useStudentStore.getState().fetchStudentPerformance(student._id);
       setReportData(data);
       setSelectedReport(student);
     } catch (err) {
