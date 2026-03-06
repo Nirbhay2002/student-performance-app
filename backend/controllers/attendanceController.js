@@ -235,9 +235,16 @@ exports.getAttendance = async (req, res) => {
 exports.getStudentAttendance = async (req, res) => {
     try {
         const { id } = req.params;
-        const sessions = await Attendance.find({ 'records.studentId': id })
-            .sort({ date: -1 })
-            .lean();
+        const { startDate, endDate } = req.query;
+
+        const dateFilter = {};
+        if (startDate) { const s = new Date(startDate); s.setUTCHours(0, 0, 0, 0); dateFilter.$gte = s; }
+        if (endDate) { const e = new Date(endDate); e.setUTCHours(23, 59, 59, 999); dateFilter.$lte = e; }
+
+        const sessionFilter = { 'records.studentId': id };
+        if (Object.keys(dateFilter).length) sessionFilter.date = dateFilter;
+
+        const sessions = await Attendance.find(sessionFilter).sort({ date: -1 }).lean();
 
         const history = sessions.map(s => {
             const record = s.records.find(r => r.studentId.toString() === id);
@@ -250,6 +257,7 @@ exports.getStudentAttendance = async (req, res) => {
             };
         });
 
+        // Always compute overall % from ALL sessions (ignore date filter for the %)
         const attendancePct = await getAttendancePct(id);
         res.json({ history, attendancePct });
     } catch (err) {

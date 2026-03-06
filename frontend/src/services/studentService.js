@@ -41,8 +41,8 @@ export const studentService = {
         return res.data;
     },
 
-    getStudentAttendance: async (studentId) => {
-        const res = await api.get(`/attendance/student/${studentId}`);
+    getStudentAttendance: async (studentId, params = {}) => {
+        const res = await api.get(`/attendance/student/${studentId}`, { params });
         return res.data;
     },
 
