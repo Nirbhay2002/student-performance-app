@@ -19,6 +19,11 @@ function App() {
       setIsLoggedIn(true);
       setActivePortal(portal);
     }
+
+    // --- EARLY WAKE UP ---
+    // Ping the backend as soon as the app loads to wake it up from Render sleep
+    const API_BASE_URL = import.meta.env.VITE_API_URL|| 'http://localhost:5000/api';
+    fetch(`${API_BASE_URL}/health`).catch(() => { });
   }, []);
 
   const handleLogin = (token, portal = 'main') => {
