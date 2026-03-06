@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box, Grid, Snackbar, Alert } from '@mui/material';
 import { studentService } from '../services/studentService';
+import useStudentStore from '../store/useStudentStore';
 
 // Sub-components
 import RegistrationForm from './admin/RegistrationForm';
@@ -49,7 +50,7 @@ const AdminPanel = () => {
 
   const fetchStudents = async () => {
     try {
-      const data = await studentService.getAllStudents();
+      const data = await useStudentStore.getState().fetchStudents();
       setStudents(data.students);
     } catch (err) {
       console.error(err);
@@ -60,6 +61,7 @@ const AdminPanel = () => {
     setIsRegistering(true);
     try {
       await studentService.registerStudent({ name: studentName, rollNumber, email, batch, stream });
+      useStudentStore.getState().invalidateCache();
       setMsg('Student registered successfully!');
       setOpen(true);
       fetchStudents();
@@ -121,6 +123,7 @@ const AdminPanel = () => {
           zoology: marks.testNameZoology || 'Combined test',
         }
       });
+      useStudentStore.getState().invalidateCache();
       setMsg('Marks saved & Rank updated!');
       setOpen(true);
       // Fix #10: Notify StudentRecords (and any other component) that data changed
@@ -185,7 +188,7 @@ const AdminPanel = () => {
         </Grid>
       </Grid>
 
-      <BulkUploadZone onUploadSuccess={fetchStudents} />
+      <BulkUploadZone onUploadSuccess={() => { useStudentStore.getState().invalidateCache(); fetchStudents(); }} />
 
       <Snackbar open={open} autoHideDuration={5000} onClose={() => setOpen(false)}>
         <Alert onClose={() => setOpen(false)} severity={msgSeverity} variant="filled" sx={{ width: '100%', borderRadius: 3 }}>

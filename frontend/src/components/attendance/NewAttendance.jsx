@@ -7,6 +7,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { studentService } from '../../services/studentService';
+import useStudentStore from '../../store/useStudentStore';
 
 const BATCHES = ['Growth', 'Excel', 'Conquer'];
 const STREAMS = [
@@ -108,7 +109,7 @@ const NewAttendance = ({ onBack }) => {
         if (!batch || !stream) return;
         setLoadingStudents(true);
         try {
-            const data = await studentService.getAllStudents({ batch, stream, limit: 500 });
+            const data = await useStudentStore.getState().fetchStudents({ batch, stream, limit: 500 });
             setStudents(data.students || []);
             const initial = {};
             (data.students || []).forEach(s => { initial[s._id] = 'Present'; });
