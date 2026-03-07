@@ -3,10 +3,17 @@ import { Card, Typography, Box, Button, CircularProgress, Alert, List, ListItem,
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { studentService } from '../../services/studentService';
 import useNotificationStore from '../../store/useNotificationStore';
 
-const BulkUploadZone = ({ onUploadSuccess }) => {
+const BulkUploadZone = ({
+    onUploadSuccess,
+    title = "Bulk Marks Import",
+    description = "Upload a CSV or Excel file with roll numbers to automatically assign marks to multiple students.",
+    uploadFn,
+    templateFilename = "marks_template.csv",
+    templateHeaders = "rollNumber,examName,date,physics,maxPhysics,testNamePhysics,chemistry,maxChemistry,testNameChemistry,maths,maxMaths,testNameMaths,botany,maxBotany,testNameBotany,zoology,maxZoology,testNameZoology,attendance,remarks\n",
+    templateSamples = "STU001,Mid-Term 1,2024-03-01,85,100,Kinematics,90,100,Organic,88,100,Calculus,,,,,,,95,Great performance\nSTU002,Mid-Term 1,2024-03-01,absent,100,Kinematics,72,100,Organic,absent,100,Calculus,,,,,,,80,Absent in Physics and Maths\n"
+}) => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
@@ -26,7 +33,7 @@ const BulkUploadZone = ({ onUploadSuccess }) => {
         setResult(null);
 
         try {
-            const data = await studentService.bulkUploadMarks(file);
+            const data = await uploadFn(file);
             setResult(data);
             showNotification(data.message || 'Bulk upload completed!', data.errorCount > 0 ? 'warning' : 'success');
             if (onUploadSuccess) onUploadSuccess();
@@ -40,25 +47,23 @@ const BulkUploadZone = ({ onUploadSuccess }) => {
     };
 
     const downloadTemplate = () => {
-        const headers = 'rollNumber,examName,date,physics,maxPhysics,testNamePhysics,chemistry,maxChemistry,testNameChemistry,maths,maxMaths,testNameMaths,botany,maxBotany,testNameBotany,zoology,maxZoology,testNameZoology,attendance,remarks\n';
-        const sample1 = 'STU001,Mid-Term 1,2024-03-01,85,100,Kinematics,90,100,Organic,88,100,Calculus,,,,,,,95,Great performance\n';
-        // Leave score cells empty (or type "absent") when a student did not appear for that subject
-        const sample2 = 'STU002,Mid-Term 1,2024-03-01,absent,100,Kinematics,72,100,Organic,absent,100,Calculus,,,,,,,80,Absent in Physics and Maths\n';
-        const blob = new Blob([headers + sample1 + sample2], { type: 'text/csv' });
+        const blob = new Blob([templateHeaders + templateSamples], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'marks_template.csv';
+        a.download = templateFilename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
     };
 
+    const inputId = `bulk-file-input-${title.replace(/\s+/g, '-').toLowerCase()}`;
+
     return (
         <Card className="glass-card" sx={{ p: 4, mt: 4 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h6" display="flex" alignItems="center">
-                    <CloudUploadIcon sx={{ mr: 1.5, color: 'primary.main' }} /> Bulk Marks Import
+                    <CloudUploadIcon sx={{ mr: 1.5, color: 'primary.main' }} /> {title}
                 </Typography>
                 <Button
                     startIcon={<FileDownloadIcon />}
@@ -71,7 +76,7 @@ const BulkUploadZone = ({ onUploadSuccess }) => {
             </Box>
 
             <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
-                Upload a CSV or Excel file with roll numbers to automatically assign marks to multiple students.
+                {description}
             </Typography>
 
             <Box
@@ -87,11 +92,11 @@ const BulkUploadZone = ({ onUploadSuccess }) => {
                 <input
                     type="file"
                     accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                    id="bulk-file-input"
+                    id={inputId}
                     style={{ display: 'none' }}
                     onChange={handleFileChange}
                 />
-                <label htmlFor="bulk-file-input" style={{ cursor: 'pointer' }}>
+                <label htmlFor={inputId} style={{ cursor: 'pointer' }}>
                     <CloudUploadIcon sx={{ fontSize: 40, color: 'text.secondary', mb: 1 }} />
                     <Typography variant="body1" fontWeight={600}>
                         {file ? file.name : 'Click or Drag to Select File'}

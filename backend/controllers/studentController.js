@@ -1,5 +1,6 @@
 const Student = require('../models/Student');
 const Marks = require('../models/Marks');
+const { processStudentBulkUpload } = require('../logic/bulkUpload');
 
 // Get all students with filters and pagination
 exports.getStudents = async (req, res) => {
@@ -114,6 +115,17 @@ exports.getStudentByRoll = async (req, res) => {
         if (!student) return res.status(404).json({ error: 'Student not found' });
         res.json(student);
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+// Process bulk upload of students
+exports.bulkUpload = async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+        const result = await processStudentBulkUpload(req.file.buffer);
+        res.json(result);
+    } catch (err) {
+        console.error('❌ Student Bulk Upload Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 };

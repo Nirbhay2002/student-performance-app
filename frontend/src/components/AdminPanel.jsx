@@ -224,7 +224,19 @@ const AdminPanel = () => {
         </Grid>
       </Grid>
 
-      <BulkUploadZone onUploadSuccess={() => { useStudentStore.getState().invalidateCache(); fetchStudents(); }} />
+          <BulkUploadZone
+            onUploadSuccess={() => { useStudentStore.getState().invalidateCache(); fetchStudents(); }}
+            uploadFn={studentService.bulkUploadMarks}
+          />
+          <BulkUploadZone
+            title="Bulk Student Enrollment"
+            description="Upload a CSV or Excel file to register or update multiple students at once. Required: name, rollNumber, email, stream."
+            templateFilename="student_enrollment_template.csv"
+            templateHeaders="name,rollNumber,email,batch,subBatch,stream\n"
+            templateSamples="John Doe,STU101,john@example.com,Growth,A1,Non-Medical"
+            onUploadSuccess={() => { useStudentStore.getState().invalidateCache(); fetchStudents(); }}
+            uploadFn={studentService.bulkUploadStudents}
+          />
     </Box>
   );
 };

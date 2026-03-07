@@ -35,6 +35,15 @@ export const studentService = {
         return res.data;
     },
 
+    bulkUploadStudents: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await api.post('/students/bulk', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return res.data;
+    },
+
     // Attendance Portal
     saveAttendance: async (payload) => {
         const res = await api.post('/attendance', payload);

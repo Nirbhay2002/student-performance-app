@@ -135,4 +135,76 @@ const processBulkUpload = async (buffer) => {
     };
 };
 
-module.exports = { processBulkUpload };
+const processStudentBulkUpload = async (buffer) => {
+    const workbook = xlsx.read(buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: '' });
+
+    const results = {
+        success: 0,
+        errors: [],
+        updated: 0,
+        registered: 0
+    };
+
+    for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        try {
+            if (!row.rollNumber) throw new Error('Missing rollNumber');
+            if (!row.name) throw new Error('Missing name');
+            if (!row.email) throw new Error('Missing email');
+            if (!row.stream) throw new Error('Missing stream (Medical/Non-Medical)');
+
+            // Validate stream
+            if (!['Medical', 'Non-Medical'].includes(row.stream)) {
+                throw new Error(`Invalid stream: ${row.stream}. Must be Medical or Non-Medical`);
+            }
+
+            const studentData = {
+                name: row.name,
+                rollNumber: String(row.rollNumber),
+                email: row.email,
+                batch: row.batch || 'General',
+                subBatch: row.subBatch || 'None',
+                stream: row.stream
+            };
+
+            let student = await Student.findOne({ rollNumber: studentData.rollNumber });
+
+            if (student) {
+                // Update existing
+                Object.assign(student, studentData);
+                await student.save();
+                results.updated++;
+            } else {
+                // Create new
+                student = new Student(studentData);
+                await student.save();
+                results.registered++;
+            }
+            results.success++;
+        } catch (err) {
+            if (results.errors.length < 50) {
+                results.errors.push(`Row ${i + 2} (${row.rollNumber || 'unknown'}): ${err.message}`);
+            } else if (results.errors.length === 50) {
+                results.errors.push('... and more errors (truncated at 50)');
+            }
+        }
+    }
+
+    // Recalculate categories for all if anyone was added/updated
+    if (results.success > 0) {
+        await recalculateAllCategories(Student);
+    }
+
+    return {
+        message: `Processed ${data.length} rows. Successfully handled ${results.success} student records.`,
+        successCount: results.success,
+        registeredCount: results.registered,
+        updatedCount: results.updated,
+        errorCount: results.errors.length,
+        errors: results.errors
+    };
+};
+
+module.exports = { processBulkUpload, processStudentBulkUpload };
