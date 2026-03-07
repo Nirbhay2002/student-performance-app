@@ -9,7 +9,7 @@ import SwipeableRow from './SwipeableRow';
 const AttendanceRosterScreen = ({
     batch, subBatch, stream, date,
     students, statusMap,
-    submitting, toast, setToast,
+    submitting,
     onBack, markAll, onStatusChange, onSubmit,
 }) => {
     const presentCount = Object.values(statusMap).filter(s => s === 'Present').length;
@@ -90,12 +90,6 @@ const AttendanceRosterScreen = ({
                     {submitting ? <CircularProgress size={22} color="inherit" /> : 'Submit Attendance'}
                 </Button>
             </Box>
-
-            <Snackbar open={toast.open} autoHideDuration={3000}
-                onClose={() => setToast(t => ({ ...t, open: false }))}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-                <Alert severity={toast.severity} variant="filled" sx={{ borderRadius: 2 }}>{toast.msg}</Alert>
-            </Snackbar>
         </Box>
     );
 };

@@ -37,12 +37,14 @@ import { saveAs } from 'file-saver';
 import HiddenReportContent from './dashboard/HiddenReportContent';
 import DateRangeFilter from './dashboard/DateRangeFilter';
 import useStudentStore from '../store/useStudentStore';
+import useNotificationStore from '../store/useNotificationStore';
 
 
 const StudentRecords = ({ navParams }) => {
     const [students, setStudents] = useState([]);
     const [total, setTotal] = useState(0);
-    const [loading, setLoading] = useState(true);
+    const showNotification = useNotificationStore((state) => state.showNotification);
+    const [loading, setLoading] = useState(false);
 
     // Cancellation Ref
     const cancelDownloadRef = React.useRef(false);
@@ -146,7 +148,7 @@ const StudentRecords = ({ navParams }) => {
             setReportData(data);
             setSelectedReport(student);
         } catch (err) {
-            alert(`Failed to load report: ${err.message}`);
+            showNotification(`Failed to load report: ${err.message}`, 'error');
         } finally {
             setIsReportLoading(false);
         }
@@ -159,7 +161,7 @@ const StudentRecords = ({ navParams }) => {
 
     const sendEmail = () => {
         if (!selectedReport) return;
-        alert(`Report card sent to ${selectedReport.email}`);
+        showNotification(`Report card sent to ${selectedReport.email}`, 'success');
     };
 
     const getCategoryColor = (cat) => {
@@ -230,7 +232,7 @@ const StudentRecords = ({ navParams }) => {
                 console.log("Zip download cancelled.");
             } else {
                 console.error("Failed to download zip:", err);
-                alert("An error occurred while downloading report cards zip.");
+                showNotification("An error occurred while downloading report cards zip.", "error");
             }
         } finally {
             setIsDownloadingZip(false);

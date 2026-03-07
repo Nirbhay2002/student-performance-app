@@ -4,12 +4,14 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { studentService } from '../../services/studentService';
+import useNotificationStore from '../../store/useNotificationStore';
 
 const BulkUploadZone = ({ onUploadSuccess }) => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
+    const showNotification = useNotificationStore((state) => state.showNotification);
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -26,9 +28,12 @@ const BulkUploadZone = ({ onUploadSuccess }) => {
         try {
             const data = await studentService.bulkUploadMarks(file);
             setResult(data);
+            showNotification(data.message || 'Bulk upload completed!', data.errorCount > 0 ? 'warning' : 'success');
             if (onUploadSuccess) onUploadSuccess();
         } catch (err) {
-            setError(err.response?.data?.error || err.message || 'Failed to upload file');
+            const errMsg = err.response?.data?.error || err.message || 'Failed to upload file';
+            setError(errMsg);
+            showNotification(errMsg, 'error');
         } finally {
             setLoading(false);
         }

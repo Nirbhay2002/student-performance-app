@@ -5,6 +5,7 @@ import theme from './theme';
 import { routes } from './routes';
 import Login from './components/Login';
 import AttendanceApp from './components/attendance/AttendanceApp';
+import GlobalNotification from './components/GlobalNotification';
 import './App.css';
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
 
     // --- EARLY WAKE UP ---
     // Ping the backend as soon as the app loads to wake it up from Render sleep
-    const API_BASE_URL = import.meta.env.VITE_API_URL|| 'http://localhost:5000/api';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     fetch(`${API_BASE_URL}/health`).catch(() => { });
   }, []);
 
@@ -59,6 +60,7 @@ function App() {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <GlobalNotification />
         <Login onLogin={handleLogin} />
       </ThemeProvider>
     );
@@ -69,6 +71,7 @@ function App() {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <GlobalNotification />
         <AttendanceApp onLogout={handleLogout} />
       </ThemeProvider>
     );
@@ -78,6 +81,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      <GlobalNotification />
       <AppBar position="sticky" elevation={0} sx={{ color: 'text.primary' }}>
         <Toolbar sx={{ maxWidth: 1440, width: '100%', mx: 'auto' }}>
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 1 }}>

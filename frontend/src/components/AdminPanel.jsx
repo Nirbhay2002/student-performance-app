@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Grid, Snackbar, Alert } from '@mui/material';
+import { Typography, Box, Grid } from '@mui/material';
 import { studentService } from '../services/studentService';
 import useStudentStore from '../store/useStudentStore';
+import useNotificationStore from '../store/useNotificationStore';
 
 // Sub-components
 import RegistrationForm from './admin/RegistrationForm';
@@ -39,9 +40,7 @@ const AdminPanel = () => {
     testNameZoology: '',
   });
 
-  const [open, setOpen] = useState(false);
-  const [msg, setMsg] = useState('');
-  const [msgSeverity, setMsgSeverity] = useState('success');
+  const showNotification = useNotificationStore((state) => state.showNotification);
   const [isRegistering, setIsRegistering] = useState(false);
   const [isSavingMarks, setIsSavingMarks] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -63,9 +62,7 @@ const AdminPanel = () => {
             setSubBatch(student.subBatch || 'None');
             setStream(student.stream);
             setIsUpdating(true);
-            setMsg('Existing student detected. Ready to update info.');
-            setMsgSeverity('info');
-            setOpen(true);
+            showNotification('Existing student detected. Ready to update info.', 'info');
           }
         } catch (err) {
           // If 404, just ignore, it's a new student
@@ -99,9 +96,7 @@ const AdminPanel = () => {
     try {
       const response = await studentService.registerStudent({ name: studentName, rollNumber, email, batch, subBatch, stream });
       useStudentStore.getState().invalidateCache();
-      setMsg(response.message || 'Student saved successfully!');
-      setMsgSeverity('success');
-      setOpen(true);
+      showNotification(response.message || 'Student saved successfully!', 'success');
       fetchStudents();
       setStudentName('');
       setRollNumber('');
@@ -165,8 +160,7 @@ const AdminPanel = () => {
         }
       });
       useStudentStore.getState().invalidateCache();
-      setMsg('Marks saved & Rank updated!');
-      setOpen(true);
+      showNotification('Marks saved & Rank updated!', 'success');
       // Fix #10: Notify StudentRecords (and any other component) that data changed
       window.dispatchEvent(new Event('studentDataChanged'));
       setMarks({
@@ -183,9 +177,7 @@ const AdminPanel = () => {
       });
     } catch (err) {
       const errMsg = err.response?.data?.error || err.message || 'Failed to save marks';
-      setMsg(errMsg);
-      setMsgSeverity('error');
-      setOpen(true);
+      showNotification(errMsg, 'error');
     } finally {
       setIsSavingMarks(false);
     }
@@ -233,12 +225,6 @@ const AdminPanel = () => {
       </Grid>
 
       <BulkUploadZone onUploadSuccess={() => { useStudentStore.getState().invalidateCache(); fetchStudents(); }} />
-
-      <Snackbar open={open} autoHideDuration={5000} onClose={() => setOpen(false)}>
-        <Alert onClose={() => setOpen(false)} severity={msgSeverity} variant="filled" sx={{ width: '100%', borderRadius: 3 }}>
-          {msg}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

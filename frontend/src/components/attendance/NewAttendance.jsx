@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Snackbar, Alert } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { studentService } from '../../services/studentService';
 import useStudentStore from '../../store/useStudentStore';
+import useNotificationStore from '../../store/useNotificationStore';
 import AttendanceConfigScreen from './components/AttendanceConfigScreen';
 import AttendanceRosterScreen from './components/AttendanceRosterScreen';
 
@@ -14,9 +15,7 @@ const NewAttendance = ({ onBack }) => {
     const [statusMap, setStatusMap] = useState({});
     const [loadingStudents, setLoadingStudents] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [toast, setToast] = useState({ open: false, msg: '', severity: 'success' });
-
-    const showToast = (msg, severity = 'success') => setToast({ open: true, msg, severity });
+    const showNotification = useNotificationStore((state) => state.showNotification);
 
     const loadStudents = async () => {
         if (!selectedSubBatch || !stream) return;
@@ -30,7 +29,7 @@ const NewAttendance = ({ onBack }) => {
             setStatusMap(initial);
             setStep('roster');
         } catch (err) {
-            showToast('Failed to load students: ' + err.message, 'error');
+            showNotification('Failed to load students: ' + err.message, 'error');
         } finally {
             setLoadingStudents(false);
         }
@@ -52,10 +51,10 @@ const NewAttendance = ({ onBack }) => {
             const records = students.map(s => ({ studentId: s._id, status: statusMap[s._id] || 'Present' }));
             await studentService.saveAttendance({ date, batch, subBatch, stream, records });
             window.dispatchEvent(new Event('studentDataChanged'));
-            showToast('Attendance saved successfully!');
+            showNotification('Attendance saved successfully!', 'success');
             setTimeout(() => onBack(), 1400);
         } catch (err) {
-            showToast(err.response?.data?.error || err.message, 'error');
+            showNotification(err.response?.data?.error || err.message, 'error');
         } finally {
             setSubmitting(false);
         }
@@ -82,7 +81,6 @@ const NewAttendance = ({ onBack }) => {
             date={date}
             students={students} statusMap={statusMap}
             submitting={submitting}
-            toast={toast} setToast={setToast}
             onBack={() => setStep('config')}
             markAll={markAll}
             onStatusChange={handleStatusChange}

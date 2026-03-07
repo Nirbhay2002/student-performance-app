@@ -6,6 +6,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { studentService } from '../../services/studentService';
+import useNotificationStore from '../../store/useNotificationStore';
 import HistoryRow from './components/HistoryRow';
 import HistoryFilterPanel from './components/HistoryFilterPanel';
 
@@ -25,9 +26,7 @@ const AttendanceHistory = ({ onBack }) => {
     const [appliedStart, setAppliedStart] = useState('');
     const [appliedEnd, setAppliedEnd] = useState('');
     const [appliedSubBatch, setAppliedSubBatch] = useState(null);
-    const [toast, setToast] = useState({ open: false, msg: '', severity: 'success' });
-
-    const showToast = (msg, severity = 'success') => setToast({ open: true, msg, severity });
+    const showNotification = useNotificationStore((state) => state.showNotification);
 
     const fetchSessions = useCallback(async (pageNum = 0, append = false, start = appliedStart, end = appliedEnd, sub = appliedSubBatch) => {
         pageNum === 0 ? setLoading(true) : setLoadingMore(true);
@@ -43,7 +42,7 @@ const AttendanceHistory = ({ onBack }) => {
             setSessions(prev => append ? [...prev, ...(data.sessions || [])] : (data.sessions || []));
             setTotal(data.total || 0);
         } catch (err) {
-            showToast('Failed to load history: ' + err.message, 'error');
+            showNotification('Failed to load history: ' + err.message, 'error');
         } finally {
             setLoading(false);
             setLoadingMore(false);
@@ -90,12 +89,12 @@ const AttendanceHistory = ({ onBack }) => {
     const handleDelete = async (id) => {
         try {
             await studentService.deleteAttendance(id);
-            showToast('Session deleted.');
+            showNotification('Session deleted.', 'info');
             window.dispatchEvent(new Event('studentDataChanged'));
             setSessions(prev => prev.filter(s => s._id !== id));
             setTotal(t => t - 1);
         } catch (err) {
-            showToast(err.response?.data?.error || err.message, 'error');
+            showNotification(err.response?.data?.error || err.message, 'error');
         }
     };
 
@@ -165,12 +164,6 @@ const AttendanceHistory = ({ onBack }) => {
                     </>
                 )}
             </Box>
-
-            <Snackbar open={toast.open} autoHideDuration={3000}
-                onClose={() => setToast(t => ({ ...t, open: false }))}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-                <Alert severity={toast.severity} variant="filled" sx={{ borderRadius: 2 }}>{toast.msg}</Alert>
-            </Snackbar>
         </Box>
     );
 };

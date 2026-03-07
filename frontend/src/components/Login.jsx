@@ -6,6 +6,7 @@ import {
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import axios from 'axios';
+import useNotificationStore from '../store/useNotificationStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -13,24 +14,22 @@ const Login = ({ onLogin }) => {
     const [portalTab, setPortalTab] = useState(0); // 0 = Student, 1 = Attendance
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const showNotification = useNotificationStore((state) => state.showNotification);
     const [loading, setLoading] = useState(false);
 
     const isAttendancePortal = portalTab === 1;
 
     const handleTabChange = (_, newVal) => {
         setPortalTab(newVal);
-        setError('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!username || !password) {
-            setError('Please enter both username and password.');
+            showNotification('Please enter both username and password.', 'error');
             return;
         }
         setLoading(true);
-        setError('');
         try {
             const response = await axios.post(`${API_URL}/auth/login`, { username, password });
             const { token } = response.data;
@@ -38,10 +37,10 @@ const Login = ({ onLogin }) => {
                 localStorage.setItem('token', token);
                 onLogin(token, isAttendancePortal ? 'attendance' : 'main');
             } else {
-                setError('Invalid response from server.');
+                showNotification('Invalid response from server.', 'error');
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed. Please verify your credentials.');
+            showNotification(err.response?.data?.message || 'Login failed. Please verify your credentials.', 'error');
         } finally {
             setLoading(false);
         }
@@ -98,7 +97,6 @@ const Login = ({ onLogin }) => {
                 </Tabs>
                 {/* Form */}
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ px: 4, pb: 4, pt: 1 }}>
-                    {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 1.5 }}>{error}</Alert>}
                     <TextField
                         margin="normal"
                         required
