@@ -8,7 +8,7 @@ import AttendanceRosterScreen from './components/AttendanceRosterScreen';
 const NewAttendance = ({ onBack }) => {
     const [step, setStep] = useState('config');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [batch, setBatch] = useState('');
+    const [selectedSubBatch, setSelectedSubBatch] = useState(null);
     const [stream, setStream] = useState('Non-Medical');
     const [students, setStudents] = useState([]);
     const [statusMap, setStatusMap] = useState({});
@@ -19,10 +19,11 @@ const NewAttendance = ({ onBack }) => {
     const showToast = (msg, severity = 'success') => setToast({ open: true, msg, severity });
 
     const loadStudents = async () => {
-        if (!batch || !stream) return;
+        if (!selectedSubBatch || !stream) return;
         setLoadingStudents(true);
         try {
-            const data = await useStudentStore.getState().fetchStudents({ batch, stream, limit: 500 });
+            const { batch, subBatch } = selectedSubBatch;
+            const data = await useStudentStore.getState().fetchStudents({ batch, subBatch, stream, limit: 500 });
             setStudents(data.students || []);
             const initial = {};
             (data.students || []).forEach(s => { initial[s._id] = 'Present'; });
@@ -47,8 +48,9 @@ const NewAttendance = ({ onBack }) => {
     const handleSubmit = async () => {
         setSubmitting(true);
         try {
+            const { batch, subBatch } = selectedSubBatch;
             const records = students.map(s => ({ studentId: s._id, status: statusMap[s._id] || 'Present' }));
-            await studentService.saveAttendance({ date, batch, stream, records });
+            await studentService.saveAttendance({ date, batch, subBatch, stream, records });
             window.dispatchEvent(new Event('studentDataChanged'));
             showToast('Attendance saved successfully!');
             setTimeout(() => onBack(), 1400);
@@ -63,7 +65,7 @@ const NewAttendance = ({ onBack }) => {
         return (
             <AttendanceConfigScreen
                 date={date} setDate={setDate}
-                batch={batch} setBatch={setBatch}
+                selectedSubBatch={selectedSubBatch} setSelectedSubBatch={setSelectedSubBatch}
                 stream={stream} setStream={setStream}
                 loadingStudents={loadingStudents}
                 onBack={onBack}
@@ -74,7 +76,10 @@ const NewAttendance = ({ onBack }) => {
 
     return (
         <AttendanceRosterScreen
-            batch={batch} stream={stream} date={date}
+            batch={selectedSubBatch?.batch}
+            subBatch={selectedSubBatch?.subBatch}
+            stream={stream}
+            date={date}
             students={students} statusMap={statusMap}
             submitting={submitting}
             toast={toast} setToast={setToast}

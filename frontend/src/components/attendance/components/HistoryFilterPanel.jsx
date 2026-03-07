@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Typography, Button, Chip, TextField, Collapse } from '@mui/material';
+import { Box, Typography, Button, Chip, TextField, Collapse, MenuItem } from '@mui/material';
+import { SUB_BATCHES } from './AttendanceConfigScreen';
 
 const PRESETS = [
     { label: 'This Week', days: 7 },
@@ -7,9 +8,18 @@ const PRESETS = [
     { label: 'Last 3 Months', days: 90 },
 ];
 
-const HistoryFilterPanel = ({ open, startDate, endDate, setStartDate, setEndDate, onApply, onClear }) => (
+const HistoryFilterPanel = ({ open, startDate, endDate, setStartDate, setEndDate, selectedSubBatch, setSelectedSubBatch, onApply, onClear }) => (
     <Collapse in={open}>
         <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px solid rgba(25,118,210,0.08)' }}>
+            <Typography variant="caption" fontWeight={700} color="text.secondary"
+                sx={{ display: 'block', mb: 1 }}>FILTER BY CLASS</Typography>
+            <TextField fullWidth select size="small" label="Batch / Sub-Batch" value={selectedSubBatch?.label || 'All'}
+                onChange={e => setSelectedSubBatch(SUB_BATCHES.find(b => b.label === e.target.value) || null)}
+                sx={{ mb: 2, '& .MuiOutlinedInput-root': { borderRadius: 2, fontSize: '0.8rem' } }}>
+                <MenuItem value="All">All Batches</MenuItem>
+                {SUB_BATCHES.map(b => <MenuItem key={b.label} value={b.label}>{b.label}</MenuItem>)}
+            </TextField>
+
             <Typography variant="caption" fontWeight={700} color="text.secondary"
                 sx={{ display: 'block', mb: 1 }}>FILTER BY DATE RANGE</Typography>
             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>

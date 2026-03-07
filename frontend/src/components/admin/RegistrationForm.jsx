@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Typography, Grid, TextField, MenuItem, Button, CircularProgress } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, stream, setStream, onRegister, isLoading }) => {
+const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, subBatch, setSubBatch, stream, setStream, onRegister, isLoading }) => {
     return (
         <Card className="glass-card" sx={{ p: 4, height: '100%' }}>
             <Typography variant="h6" gutterBottom display="flex" alignItems="center" color="primary" sx={{ mb: 3 }}>
@@ -20,6 +20,16 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
                         <MenuItem value="Medical">Medical (PCB)</MenuItem>
                         <MenuItem value="Non-Medical">Non-Medical (PCM)</MenuItem>
                     </TextField>
+                </Grid>
+                <Grid item xs={6}>
+                    <TextField fullWidth select label="Batch" value={batch} onChange={(e) => setBatch(e.target.value)}>
+                        <MenuItem value="Growth">Growth</MenuItem>
+                        <MenuItem value="Excel">Excel</MenuItem>
+                        <MenuItem value="Conquer">Conquer</MenuItem>
+                    </TextField>
+                </Grid>
+                <Grid item xs={6}>
+                    <TextField fullWidth label="Sub-Batch" variant="outlined" value={subBatch} onChange={(e) => setSubBatch(e.target.value)} helperText="e.g. Growth Morning" />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField fullWidth label="Parent Contact Email" variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} />

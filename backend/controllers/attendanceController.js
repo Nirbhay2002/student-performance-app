@@ -151,7 +151,7 @@ const recalcStudents = async (studentIds) => {
 // Body: { date, batch, stream, records: [{ studentId, status }] }
 exports.saveAttendance = async (req, res) => {
     try {
-        const { date, batch, stream, records } = req.body;
+        const { date, batch, subBatch = 'None', stream, records } = req.body;
 
         if (!date || !batch || !stream || !records || !Array.isArray(records)) {
             return res.status(400).json({ error: 'date, batch, stream, and records[] are required.' });
@@ -163,8 +163,8 @@ exports.saveAttendance = async (req, res) => {
 
         // Upsert the session
         const session = await Attendance.findOneAndUpdate(
-            { date: d, batch, stream },
-            { date: d, batch, stream, records },
+            { date: d, batch, subBatch, stream },
+            { date: d, batch, subBatch, stream, records },
             { upsert: true, new: true, runValidators: true }
         );
 
@@ -183,10 +183,11 @@ exports.saveAttendance = async (req, res) => {
 // Query: batch, stream, startDate, endDate, page, limit
 exports.getAttendance = async (req, res) => {
     try {
-        const { batch, stream, startDate, endDate, page = 0, limit = 20 } = req.query;
+        const { batch, subBatch, stream, startDate, endDate, page = 0, limit = 20 } = req.query;
         const filter = {};
 
         if (batch) filter.batch = batch;
+        if (subBatch) filter.subBatch = subBatch;
         if (stream) filter.stream = stream;
 
         if (startDate || endDate) {
@@ -252,6 +253,7 @@ exports.getStudentAttendance = async (req, res) => {
                 _id: s._id,
                 date: s.date,
                 batch: s.batch,
+                subBatch: s.subBatch,
                 stream: s.stream,
                 status: record ? record.status : null,
             };

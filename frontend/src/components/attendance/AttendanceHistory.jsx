@@ -21,18 +21,24 @@ const AttendanceHistory = ({ onBack }) => {
     const [showFilters, setShowFilters] = useState(false);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [selectedSubBatch, setSelectedSubBatch] = useState(null);
     const [appliedStart, setAppliedStart] = useState('');
     const [appliedEnd, setAppliedEnd] = useState('');
+    const [appliedSubBatch, setAppliedSubBatch] = useState(null);
     const [toast, setToast] = useState({ open: false, msg: '', severity: 'success' });
 
     const showToast = (msg, severity = 'success') => setToast({ open: true, msg, severity });
 
-    const fetchSessions = useCallback(async (pageNum = 0, append = false, start = appliedStart, end = appliedEnd) => {
+    const fetchSessions = useCallback(async (pageNum = 0, append = false, start = appliedStart, end = appliedEnd, sub = appliedSubBatch) => {
         pageNum === 0 ? setLoading(true) : setLoadingMore(true);
         try {
             const params = { page: pageNum, limit: LIMIT };
             if (start) params.startDate = start;
             if (end) params.endDate = end;
+            if (sub) {
+                params.batch = sub.batch;
+                params.subBatch = sub.subBatch;
+            }
             const data = await studentService.getAttendance(params);
             setSessions(prev => append ? [...prev, ...(data.sessions || [])] : (data.sessions || []));
             setTotal(data.total || 0);
@@ -66,17 +72,18 @@ const AttendanceHistory = ({ onBack }) => {
     const applyFilters = () => {
         setAppliedStart(startDate);
         setAppliedEnd(endDate);
+        setAppliedSubBatch(selectedSubBatch);
         setPage(0);
-        fetchSessions(0, false, startDate, endDate);
+        fetchSessions(0, false, startDate, endDate, selectedSubBatch);
         fetchSummary(startDate, endDate);
         setShowFilters(false);
     };
 
     const clearFilters = () => {
-        setStartDate(''); setEndDate('');
-        setAppliedStart(''); setAppliedEnd('');
+        setStartDate(''); setEndDate(''); setSelectedSubBatch(null);
+        setAppliedStart(''); setAppliedEnd(''); setAppliedSubBatch(null);
         setPage(0);
-        fetchSessions(0, false, '', '');
+        fetchSessions(0, false, '', '', null);
         fetchSummary('', '');
     };
 
@@ -95,10 +102,10 @@ const AttendanceHistory = ({ onBack }) => {
     const handleLoadMore = () => {
         const nextPage = page + 1;
         setPage(nextPage);
-        fetchSessions(nextPage, true, appliedStart, appliedEnd);
+        fetchSessions(nextPage, true, appliedStart, appliedEnd, appliedSubBatch);
     };
 
-    const hasFilters = !!(appliedStart || appliedEnd);
+    const hasFilters = !!(appliedStart || appliedEnd || appliedSubBatch);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -130,6 +137,7 @@ const AttendanceHistory = ({ onBack }) => {
                     open={showFilters}
                     startDate={startDate} endDate={endDate}
                     setStartDate={setStartDate} setEndDate={setEndDate}
+                    selectedSubBatch={selectedSubBatch} setSelectedSubBatch={setSelectedSubBatch}
                     onApply={applyFilters} onClear={clearFilters}
                 />
             </Box>

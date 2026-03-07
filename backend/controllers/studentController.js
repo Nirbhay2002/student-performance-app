@@ -9,11 +9,12 @@ exports.getStudents = async (req, res) => {
         const search = req.query.search || '';
         const stream = req.query.stream || 'All';
         const batch = req.query.batch || 'All';
+        const subBatch = req.query.subBatch || 'All';
         const category = req.query.category || 'All';
         const minScore = (req.query.minScore !== undefined && req.query.minScore !== '') ? parseFloat(req.query.minScore) : null;
         const maxScore = (req.query.maxScore !== undefined && req.query.maxScore !== '') ? parseFloat(req.query.maxScore) : null;
 
-        console.log(`🔍 Filter Request: Stream=${stream}, Batch=${batch}, Category=${category}, Min=${minScore}, Max=${maxScore}`);
+        console.log(`🔍 Filter Request: Stream=${stream}, Batch=${batch}, SubBatch=${subBatch}, Category=${category}, Min=${minScore}, Max=${maxScore}`);
 
         const query = {};
         if (search) {
@@ -24,6 +25,7 @@ exports.getStudents = async (req, res) => {
         }
         if (stream !== 'All') query.stream = stream;
         if (batch !== 'All') query.batch = batch;
+        if (subBatch !== 'All') query.subBatch = subBatch;
         if (category !== 'All') query.category = category;
 
         if (minScore !== null && maxScore !== null) {

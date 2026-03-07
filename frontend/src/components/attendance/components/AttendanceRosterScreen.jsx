@@ -7,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SwipeableRow from './SwipeableRow';
 
 const AttendanceRosterScreen = ({
-    batch, stream, date,
+    batch, subBatch, stream, date,
     students, statusMap,
     submitting, toast, setToast,
     onBack, markAll, onStatusChange, onSubmit,
@@ -28,7 +28,7 @@ const AttendanceRosterScreen = ({
                         <Button startIcon={<ArrowBackIcon />} onClick={onBack}
                             sx={{ minWidth: 0, p: 0.5, color: 'text.secondary' }} />
                         <Typography variant="subtitle1" fontWeight={800}>
-                            {batch} · {stream === 'Non-Medical' ? 'JEE' : 'NEET'}
+                            {subBatch || batch} · {stream === 'Non-Medical' ? 'JEE' : 'NEET'}
                         </Typography>
                     </Box>
                     <Typography variant="caption" color="text.secondary">

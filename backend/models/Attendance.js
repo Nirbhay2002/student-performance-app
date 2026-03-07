@@ -8,6 +8,7 @@ const attendanceRecordSchema = new mongoose.Schema({
 const attendanceSchema = new mongoose.Schema({
     date: { type: Date, required: true },
     batch: { type: String, required: true },
+    subBatch: { type: String, default: 'None' },
     stream: { type: String, enum: ['Medical', 'Non-Medical'], required: true },
     records: [attendanceRecordSchema],
 }, { timestamps: true });
@@ -20,7 +21,7 @@ attendanceSchema.pre('save', function (next) {
     next();
 });
 
-// One session per batch+stream per day
-attendanceSchema.index({ date: 1, batch: 1, stream: 1 }, { unique: true });
+// One session per batch+subBatch+stream per day
+attendanceSchema.index({ date: 1, batch: 1, subBatch: 1, stream: 1 }, { unique: true });
 
 module.exports = mongoose.model('Attendance', attendanceSchema);

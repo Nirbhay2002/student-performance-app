@@ -5,7 +5,15 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const BATCHES = ['Growth', 'Excel', 'Conquer'];
+export const SUB_BATCHES = [
+    { label: 'Growth Morning', batch: 'Growth', subBatch: 'Growth Morning' },
+    { label: 'Growth Evening', batch: 'Growth', subBatch: 'Growth Evening' },
+    { label: 'Excel Morning', batch: 'Excel', subBatch: 'Excel Morning' },
+    { label: 'Excel Evening', batch: 'Excel', subBatch: 'Excel Evening' },
+    { label: 'Conquer Morning', batch: 'Conquer', subBatch: 'Conquer Morning' },
+    { label: 'Conquer Evening', batch: 'Conquer', subBatch: 'Conquer Evening' },
+];
+
 const STREAMS = [
     { value: 'Non-Medical', label: 'JEE (Non-Medical)' },
     { value: 'Medical', label: 'NEET (Medical)' },
@@ -13,7 +21,7 @@ const STREAMS = [
 
 const AttendanceConfigScreen = ({
     date, setDate,
-    batch, setBatch,
+    selectedSubBatch, setSelectedSubBatch,
     stream, setStream,
     loadingStudents,
     onBack, onLoad,
@@ -32,9 +40,9 @@ const AttendanceConfigScreen = ({
                 onChange={e => setDate(e.target.value)}
                 InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />
 
-            <TextField fullWidth select label="Batch" value={batch}
-                onChange={e => setBatch(e.target.value)} sx={{ mb: 2 }}>
-                {BATCHES.map(b => <MenuItem key={b} value={b}>{b}</MenuItem>)}
+            <TextField fullWidth select label="Batch" value={selectedSubBatch?.label || ''}
+                onChange={e => setSelectedSubBatch(SUB_BATCHES.find(b => b.label === e.target.value))} sx={{ mb: 2 }}>
+                {SUB_BATCHES.map(b => <MenuItem key={b.label} value={b.label}>{b.label}</MenuItem>)}
             </TextField>
 
             <Typography variant="caption" fontWeight={700} color="text.secondary"
@@ -54,7 +62,7 @@ const AttendanceConfigScreen = ({
         </Paper>
 
         <Button variant="contained" fullWidth
-            disabled={!batch || !stream || loadingStudents} onClick={onLoad}
+            disabled={!selectedSubBatch || !stream || loadingStudents} onClick={onLoad}
             sx={{ py: 1.75, fontSize: '1rem', fontWeight: 800, borderRadius: 2.5 }}>
             {loadingStudents ? <CircularProgress size={22} color="inherit" /> : 'Load Students'}
         </Button>

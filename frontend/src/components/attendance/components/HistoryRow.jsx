@@ -49,7 +49,7 @@ const HistoryRow = ({ session, onDelete, summaryMap }) => {
                     <Box sx={{ flex: 1, mr: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.25 }}>
                             <Typography variant="subtitle2" fontWeight={700}>{dateStr}</Typography>
-                            <Chip label={`${session.batch} · ${session.stream === 'Non-Medical' ? 'JEE' : 'NEET'}`}
+                            <Chip label={`${session.subBatch || session.batch} · ${session.stream === 'Non-Medical' ? 'JEE' : 'NEET'}`}
                                 size="small" sx={{ fontSize: '0.6rem', fontWeight: 700, bgcolor: '#f5f7fa', color: '#606770', height: 18 }} />
                         </Box>
                         {/* Attendance progress bar */}

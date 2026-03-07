@@ -13,19 +13,29 @@ const seed = async () => {
 
         const Student = require('../models/Student');
         const Marks = require('../models/Marks');
+        const Attendance = require('../models/Attendance');
         const { calculatePerformance, calculateAverageMarks, recalculateAllCategories } = require('../logic/ranking');
 
         await Student.deleteMany({});
         await Marks.deleteMany({});
+        await Attendance.deleteMany({});
         console.log('🗑️  Collections Cleared');
 
         const firstNames = ['Aarav', 'Diya', 'Aditya', 'Arjun', 'Ananya', 'Ishaan', 'Sana', 'Vihaan', 'Isha', 'Aryan', 'Rohan', 'Saanvi', 'Tanishq', 'Kabir', 'Myra', 'Zoya', 'Devansh', 'Kiara', 'Rishabh', 'Avni', 'Rudra', 'Navya', 'Reyansh', 'Prisha', 'Krishna', 'Kaira', 'Shaurya', 'Anvi', 'Atharv', 'Aadhya'];
         const lastNames = ['Sharma', 'Patel', 'Singh', 'Rao', 'Kumar', 'Malhotra', 'Khan', 'Reddy', 'Gupta', 'Joshi', 'Mehta', 'Nair', 'Jain', 'Verma', 'Desai', 'Ahmed', 'Pillai', 'Sen', 'Pant', 'Shah', 'Pandey', 'Chopra', 'Kapoor', 'Iyer', 'Bose', 'Das', 'Mishra', 'Yadav', 'Thakur', 'Kulkarni'];
         const trends = ['high', 'average', 'improving', 'declining', 'struggling', 'random'];
         const streams = ['Medical', 'Non-Medical'];
-        const batches = ['Growth', 'Excel', 'Conquer'];
 
-        // ─── Rich, subject-specific test names ────────────────────────────────
+        const subBatchConfig = [
+            { label: 'Growth Morning', batch: 'Growth', subBatch: 'Growth Morning' },
+            { label: 'Growth Evening', batch: 'Growth', subBatch: 'Growth Evening' },
+            { label: 'Excel Morning', batch: 'Excel', subBatch: 'Excel Morning' },
+            { label: 'Excel Evening', batch: 'Excel', subBatch: 'Excel Evening' },
+            { label: 'Conquer Morning', batch: 'Conquer', subBatch: 'Conquer Morning' },
+            { label: 'Conquer Evening', batch: 'Conquer', subBatch: 'Conquer Evening' },
+        ];
+
+        // ... (test names and exams same as before)
         const physicTests = [
             'Kinematics DPP', 'Laws of Motion Test', 'Work & Energy Quiz',
             'Rotational Mechanics', 'Gravitation Unit Test', 'Thermodynamics Mock',
@@ -57,7 +67,6 @@ const seed = async () => {
             'Chemical Coordination', 'Reproduction in Animals', 'Genetics Revision'
         ];
 
-        // Monthly exam series with dates spread over 12 months
         const exams = [
             'April Unit Test', 'May Unit Test', 'June Mid-Term',
             'July Unit Test', 'August Unit Test', 'September Mid-Term',
@@ -71,12 +80,16 @@ const seed = async () => {
 
         console.log('🌱 Generating 600 students with rich test data...');
 
+        const createdStudentIds = [];
+
         for (let i = 1; i <= 600; i++) {
             const firstName = rand(firstNames);
             const lastName = rand(lastNames);
             const name = `${firstName} ${lastName} #${i}`;
             const stream = streams[Math.floor(Math.random() * streams.length)];
-            const batch = rand(batches);
+            const config = rand(subBatchConfig);
+            const batch = config.batch;
+            const subBatch = config.subBatch;
             const trend = rand(trends);
             const rollPrefix = stream === 'Medical' ? 'M' : 'NM';
             const roll = `${rollPrefix}${i.toString().padStart(3, '0')}`;
@@ -91,7 +104,7 @@ const seed = async () => {
             const student = new Student({
                 name, rollNumber: roll,
                 email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${i}@example.com`,
-                batch, stream,
+                batch, subBatch, stream,
                 performanceScore: 0, averageMarks: 0, category: 'Medium',
                 currentRank: baseRank, previousRank: prevRank, bestRank: bestRankSimulated,
                 previousPerformanceScore:
@@ -100,24 +113,21 @@ const seed = async () => {
                             : 50 + Math.random() * 30
             });
             await student.save();
+            createdStudentIds.push(student);
 
-            // ── Subject strength offsets: each trend has a weak & strong subject ──
-            // This creates VISIBLE variance in the radar chart per subject
             const subjectBias = {
                 high: { physics: +5, chemistry: +3, maths: +4, botany: +6, zoology: +5 },
                 average: { physics: 0, chemistry: +2, maths: -3, botany: +1, zoology: -2 },
-                improving: { physics: -8, chemistry: -5, maths: -10, botany: -6, zoology: -7 }, // will improve over time
+                improving: { physics: -8, chemistry: -5, maths: -10, botany: -6, zoology: -7 },
                 declining: { physics: +2, chemistry: -4, maths: +3, botany: -5, zoology: +1 },
                 struggling: { physics: -12, chemistry: -8, maths: -15, botany: -10, zoology: -9 },
                 random: { physics: 0, chemistry: 0, maths: 0, botany: 0, zoology: 0 }
             };
             const bias = subjectBias[trend];
-
             const examRecords = [];
 
             for (let j = 0; j < exams.length; j++) {
-                const progress = j / (exams.length - 1); // 0 → 1
-
+                const progress = j / (exams.length - 1);
                 let base;
                 switch (trend) {
                     case 'high': base = 82 + Math.random() * 10; break;
@@ -129,21 +139,14 @@ const seed = async () => {
                 }
                 base = clamp(base, 10, 100);
 
-                // Physics test: pick from physics test names (cycle through for variety)
-                const phyTest = physicTests[j % physicTests.length];
-                const chemTest = chemistryTests[j % chemistryTests.length];
-                const mathTest = mathsTests[j % mathsTests.length];
-                const botTest = botanyTests[j % botanyTests.length];
-                const zooTest = zoologyTests[j % zoologyTests.length];
-
-                const marks = new Marks({
+                examRecords.push(new Marks({
                     studentId: student._id,
                     testNames: {
-                        physics: phyTest,
-                        chemistry: chemTest,
-                        maths: stream === 'Non-Medical' ? mathTest : null,
-                        botany: stream === 'Medical' ? botTest : null,
-                        zoology: stream === 'Medical' ? zooTest : null,
+                        physics: physicTests[j % physicTests.length],
+                        chemistry: chemistryTests[j % chemistryTests.length],
+                        maths: stream === 'Non-Medical' ? mathsTests[j % mathsTests.length] : null,
+                        botany: stream === 'Medical' ? botanyTests[j % botanyTests.length] : null,
+                        zoology: stream === 'Medical' ? zoologyTests[j % zoologyTests.length] : null,
                     },
                     date: new Date(Date.now() - (exams.length - 1 - j) * 30 * 24 * 60 * 60 * 1000),
                     scores: {
@@ -153,29 +156,45 @@ const seed = async () => {
                         botany: stream === 'Medical' ? jitter(base + bias.botany, 8) : null,
                         zoology: stream === 'Medical' ? jitter(base + bias.zoology, 8) : null,
                     },
-                    maxScores: {
-                        physics: 100, chemistry: 100,
-                        maths: stream === 'Non-Medical' ? 100 : 100,
-                        botany: stream === 'Medical' ? 100 : 100,
-                        zoology: stream === 'Medical' ? 100 : 100,
-                    },
+                    maxScores: { physics: 100, chemistry: 100, maths: 100, botany: 100, zoology: 100 },
                     attendance: Math.round(clamp(80 + Math.random() * 20, 60, 100)),
                     remarks: `${trend} trend · ${exams[j]}`
-                });
-                examRecords.push(marks);
+                }));
             }
-
             await Marks.insertMany(examRecords);
 
             const perfScore = calculatePerformance(examRecords, stream);
             const avgMarks = calculateAverageMarks(examRecords, stream);
-
-            await Student.findByIdAndUpdate(student._id, {
-                performanceScore: perfScore,
-                averageMarks: avgMarks
-            });
+            await Student.findByIdAndUpdate(student._id, { performanceScore: perfScore, averageMarks: avgMarks });
 
             if (i % 100 === 0) console.log(`🚀 Progress: ${i}/600 students seeded...`);
+        }
+
+        console.log('📅 Generating some attendance history (last 10 days)...');
+        for (let d = 0; d < 10; d++) {
+            const date = new Date();
+            date.setDate(date.getDate() - d);
+            date.setUTCHours(0, 0, 0, 0);
+
+            for (const config of subBatchConfig) {
+                for (const stream of streams) {
+                    const batchStudents = createdStudentIds.filter(s => s.batch === config.batch && s.subBatch === config.subBatch && s.stream === stream);
+                    if (batchStudents.length === 0) continue;
+
+                    const records = batchStudents.map(s => ({
+                        studentId: s._id,
+                        status: Math.random() > 0.15 ? 'Present' : 'Absent'
+                    }));
+
+                    await new Attendance({
+                        date,
+                        batch: config.batch,
+                        subBatch: config.subBatch,
+                        stream,
+                        records
+                    }).save().catch(() => { }); // catch unique constraint if any (not expected here)
+                }
+            }
         }
 
         console.log('🔄 Recalculating Percentile Categories...');
@@ -187,7 +206,6 @@ const seed = async () => {
 
         console.log(`\n✨ RESEED COMPLETE`);
         console.log(`   Best: ${best} · Medium: ${medium} · Worst: ${worst}`);
-        console.log(`   12 physics tests · 12 chemistry tests · 12 maths/botany/zoology tests`);
         process.exit(0);
     } catch (err) {
         console.error('❌ SEED ERROR:', err);

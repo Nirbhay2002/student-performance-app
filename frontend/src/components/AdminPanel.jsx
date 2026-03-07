@@ -13,7 +13,8 @@ const AdminPanel = () => {
   const [studentName, setStudentName] = useState('');
   const [rollNumber, setRollNumber] = useState('');
   const [email, setEmail] = useState('');
-  const [batch, setBatch] = useState('A1');
+  const [batch, setBatch] = useState('Growth');
+  const [subBatch, setSubBatch] = useState('None');
   const [stream, setStream] = useState('Non-Medical');
 
   const [selectedStudent, setSelectedStudent] = useState('');
@@ -60,7 +61,7 @@ const AdminPanel = () => {
   const handleRegister = async () => {
     setIsRegistering(true);
     try {
-      await studentService.registerStudent({ name: studentName, rollNumber, email, batch, stream });
+      await studentService.registerStudent({ name: studentName, rollNumber, email, batch, subBatch, stream });
       useStudentStore.getState().invalidateCache();
       setMsg('Student registered successfully!');
       setOpen(true);
@@ -168,6 +169,8 @@ const AdminPanel = () => {
             setEmail={setEmail}
             batch={batch}
             setBatch={setBatch}
+            subBatch={subBatch}
+            setSubBatch={setSubBatch}
             stream={stream}
             setStream={setStream}
             onRegister={handleRegister}
