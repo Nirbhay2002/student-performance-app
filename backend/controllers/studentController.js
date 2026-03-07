@@ -67,13 +67,30 @@ exports.getStudents = async (req, res) => {
     }
 };
 
-// Register a new student
+// Register or Update a student (Upsert)
 exports.registerStudent = async (req, res) => {
     try {
-        const newStudent = new Student(req.body);
-        await newStudent.save();
-        res.json(newStudent);
+        const { rollNumber } = req.body;
+        if (!rollNumber) {
+            return res.status(400).json({ error: 'Roll number is required' });
+        }
+
+        // Find existing student by rollNumber
+        let student = await Student.findOne({ rollNumber });
+
+        if (student) {
+            // Update existing student
+            Object.assign(student, req.body);
+            await student.save();
+            return res.json({ student, message: 'Student information updated successfully!', updated: true });
+        } else {
+            // Register new student
+            student = new Student(req.body);
+            await student.save();
+            res.json({ student, message: 'Student registered successfully!', updated: false });
+        }
     } catch (err) {
+        console.error('❌ Error in registerStudent:', err.message);
         res.status(500).json({ error: err.message });
     }
 };
@@ -85,6 +102,17 @@ exports.getStudentPerformance = async (req, res) => {
         const student = await Student.findById(req.params.id);
         if (!student) return res.status(404).json({ error: 'Student not found' });
         res.json({ student, marks });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Get student by roll number (for auto-fill)
+exports.getStudentByRoll = async (req, res) => {
+    try {
+        const student = await Student.findOne({ rollNumber: req.params.rollNumber });
+        if (!student) return res.status(404).json({ error: 'Student not found' });
+        res.json(student);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

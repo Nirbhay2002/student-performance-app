@@ -48,8 +48,18 @@ const TestPerformanceChart = () => {
     const [subject, setSubject] = useState('physics');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [activePreset, setActivePreset] = useState('all');
+    const [activePreset, setActivePreset] = useState('6m');
     const [data, setData] = useState([]);
+
+    useEffect(() => {
+        if (activePreset === '6m' && !startDate && !endDate) {
+            const end = new Date();
+            const start = new Date();
+            start.setMonth(end.getMonth() - 6);
+            setStartDate(start.toISOString().split('T')[0]);
+            setEndDate(end.toISOString().split('T')[0]);
+        }
+    }, [activePreset, startDate, endDate]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const fetchRef = useRef(0);

@@ -64,11 +64,13 @@ const Login = ({ onLogin }) => {
                 }}
             >
                 {/* Logo Header */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 4, pt: 4, pb: 2 }}>
-                    <img src="/assets/img/logo.png" alt="Logo" style={{ height: 38, width: 'auto', objectFit: 'contain' }} />
-                    <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: 0.5 }}>
-                        <span style={{ color: '#1976d2' }}>Unacademy</span>
-                    </Typography>
+                <Box sx={{ gap: 1, px: 4, pt: 5, pb: 2, }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'sapce-around' }}>
+                        <img src="/assets/img/logo.png" alt="Logo" style={{ height: 45, width: 'auto', objectFit: 'contain' }} />
+                        <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: 0.5 }}>
+                            <span style={{ color: '#1976d2' }}>Unacademy</span>
+                        </Typography>
+                    </div>
                 </Box>
 
                 {/* Portal Selector Tabs */}

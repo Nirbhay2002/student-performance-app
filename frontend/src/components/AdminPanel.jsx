@@ -44,10 +44,46 @@ const AdminPanel = () => {
   const [msgSeverity, setMsgSeverity] = useState('success');
   const [isRegistering, setIsRegistering] = useState(false);
   const [isSavingMarks, setIsSavingMarks] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  // Auto-fill student details when rollNumber changes
+  useEffect(() => {
+    if (rollNumber.length >= 2) {
+      const timer = setTimeout(async () => {
+        try {
+          const student = await studentService.getStudentByRoll(rollNumber);
+          if (student) {
+            setStudentName(student.name);
+            setEmail(student.email);
+            setBatch(student.batch);
+            setSubBatch(student.subBatch || 'None');
+            setStream(student.stream);
+            setIsUpdating(true);
+            setMsg('Existing student detected. Ready to update info.');
+            setMsgSeverity('info');
+            setOpen(true);
+          }
+        } catch (err) {
+          // If 404, just ignore, it's a new student
+          if (err.response?.status !== 404) {
+            console.error('Error fetching student:', err);
+          }
+        }
+      }, 500); // 500ms debounce
+      return () => clearTimeout(timer);
+    } else if (rollNumber.length === 0) {
+      // Clear fields if rollNumber is emptied out
+      setStudentName('');
+      setRollNumber('');
+      setEmail('');
+      setSubBatch('None');
+      setIsUpdating(false);
+    }
+  }, [rollNumber]);
 
   const fetchStudents = async () => {
     try {
@@ -61,14 +97,18 @@ const AdminPanel = () => {
   const handleRegister = async () => {
     setIsRegistering(true);
     try {
-      await studentService.registerStudent({ name: studentName, rollNumber, email, batch, subBatch, stream });
+      const response = await studentService.registerStudent({ name: studentName, rollNumber, email, batch, subBatch, stream });
       useStudentStore.getState().invalidateCache();
-      setMsg('Student registered successfully!');
+      setMsg(response.message || 'Student saved successfully!');
+      setMsgSeverity('success');
       setOpen(true);
       fetchStudents();
       setStudentName('');
       setRollNumber('');
       setEmail('');
+      setSubBatch('None');
+      setStream('Non-Medical'); // Reset to default
+      setBatch('Growth');       // Reset to default
     } catch (err) {
       console.error(err);
     } finally {
@@ -175,6 +215,7 @@ const AdminPanel = () => {
             setStream={setStream}
             onRegister={handleRegister}
             isLoading={isRegistering}
+            isUpdate={isUpdating}
           />
         </Grid>
 

@@ -16,6 +16,11 @@ export const studentService = {
         return res.data;
     },
 
+    getStudentByRoll: async (rollNumber) => {
+        const res = await api.get(`/students/roll/${rollNumber}`);
+        return res.data;
+    },
+
     saveMarks: async (marksData) => {
         const res = await api.post('/marks', marksData);
         return res.data;

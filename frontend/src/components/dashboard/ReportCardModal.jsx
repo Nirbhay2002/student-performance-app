@@ -18,10 +18,20 @@ const ScoreCell = ({ score, max }) => {
 const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLoading, getCategoryColor, onDownload, onSendEmail }) => {
     const [startDate, setStartDate] = React.useState('');
     const [endDate, setEndDate] = React.useState('');
-    const [activePreset, setActivePreset] = React.useState('all');
+    const [activePreset, setActivePreset] = React.useState('6m');
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
+    // Initial effect to set the 6m date range if the modal opens with '6m' preset
+    React.useEffect(() => {
+        if (activePreset === '6m' && !startDate && !endDate) {
+            const end = new Date();
+            const start = new Date();
+            start.setMonth(end.getMonth() - 6);
+            setStartDate(start.toISOString().split('T')[0]);
+            setEndDate(end.toISOString().split('T')[0]);
+        }
+    }, [activePreset, startDate, endDate]);
 
     const filteredMarks = React.useMemo(() => {
         if (!reportData?.marks) return [];
@@ -169,37 +179,37 @@ const ReportCardModal = ({ open, onClose, selectedReport, reportData, isReportLo
                             <Table>
                                 <TableHead sx={{ bgcolor: '#1a237e' }}>
                                     <TableRow>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Test Date</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>Test Date</TableCell>
                                         <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Test Name</TableCell>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Physics</TableCell>
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Chemistry</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700, width: '90px', whiteSpace: 'nowrap' }}>Physics</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700, width: '90px', whiteSpace: 'nowrap' }}>Chemistry</TableCell>
                                         {selectedReport?.stream === 'Medical' ? (
                                             <React.Fragment>
-                                                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Botany</TableCell>
-                                                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Zoology</TableCell>
+                                                <TableCell sx={{ color: '#fff', fontWeight: 700, width: '90px', whiteSpace: 'nowrap' }}>Botany</TableCell>
+                                                <TableCell sx={{ color: '#fff', fontWeight: 700, width: '90px', whiteSpace: 'nowrap' }}>Zoology</TableCell>
                                             </React.Fragment>
                                         ) : (
-                                            <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Mathematics</TableCell>
+                                            <TableCell sx={{ color: '#fff', fontWeight: 700, width: '120px', whiteSpace: 'nowrap' }}>Mathematics</TableCell>
                                         )}
-                                        <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Attendance</TableCell>
+                                        <TableCell sx={{ color: '#fff', fontWeight: 700, width: '100px', whiteSpace: 'nowrap' }}>Attendance</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {paginatedMarks.map((m, idx) => (
                                         <TableRow key={idx} sx={{ '&:nth-of-type(even)': { bgcolor: '#fafafa' } }}>
-                                            <TableCell sx={{ fontWeight: 600 }}>{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</TableCell>
-                                            <TableCell>{formatTestNames(m.testNames, selectedReport?.stream)}</TableCell>
-                                            <TableCell><ScoreCell score={m.scores.physics} max={m.maxScores?.physics} /></TableCell>
-                                            <TableCell><ScoreCell score={m.scores.chemistry} max={m.maxScores?.chemistry} /></TableCell>
+                                            <TableCell sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{new Date(m.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</TableCell>
+                                            <TableCell sx={{ minWidth: '200px' }}>{formatTestNames(m.testNames, selectedReport?.stream)}</TableCell>
+                                            <TableCell sx={{ whiteSpace: 'nowrap' }}><ScoreCell score={m.scores.physics} max={m.maxScores?.physics} /></TableCell>
+                                            <TableCell sx={{ whiteSpace: 'nowrap' }}><ScoreCell score={m.scores.chemistry} max={m.maxScores?.chemistry} /></TableCell>
                                             {selectedReport?.stream === 'Medical' ? (
                                                 <React.Fragment>
-                                                    <TableCell><ScoreCell score={m.scores.botany} max={m.maxScores?.botany} /></TableCell>
-                                                    <TableCell><ScoreCell score={m.scores.zoology} max={m.maxScores?.zoology} /></TableCell>
+                                                    <TableCell sx={{ whiteSpace: 'nowrap' }}><ScoreCell score={m.scores.botany} max={m.maxScores?.botany} /></TableCell>
+                                                    <TableCell sx={{ whiteSpace: 'nowrap' }}><ScoreCell score={m.scores.zoology} max={m.maxScores?.zoology} /></TableCell>
                                                 </React.Fragment>
                                             ) : (
-                                                <TableCell><ScoreCell score={m.scores.maths} max={m.maxScores?.maths} /></TableCell>
+                                                <TableCell sx={{ whiteSpace: 'nowrap' }}><ScoreCell score={m.scores.maths} max={m.maxScores?.maths} /></TableCell>
                                             )}
-                                            <TableCell>
+                                            <TableCell sx={{ whiteSpace: 'nowrap' }}>
                                                 <Typography variant="body2" sx={{ color: m.attendance < 75 ? 'error.main' : 'success.main', fontWeight: 700 }}>
                                                     {m.attendance}%
                                                 </Typography>

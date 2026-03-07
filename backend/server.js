@@ -47,7 +47,7 @@ async function startServer() {
       const EXTERNAL_URL = process.env.VITE_API_URL_PROD || `http://localhost:${PORT}`;
       setInterval(async () => {
         try {
-          console.log('💓 Sending self-ping to stay awake...');
+          console.log('💓 Wakey Wakey, Eggs and bakey nigga');
           await axios.get(`${EXTERNAL_URL}/api/health`);
         } catch (err) {
           console.error('❌ Self-ping failed:', err.message);

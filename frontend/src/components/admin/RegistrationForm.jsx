@@ -2,11 +2,11 @@ import React from 'react';
 import { Card, Typography, Grid, TextField, MenuItem, Button, CircularProgress } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
-const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, subBatch, setSubBatch, stream, setStream, onRegister, isLoading }) => {
+const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumber, email, setEmail, batch, setBatch, subBatch, setSubBatch, stream, setStream, onRegister, isLoading, isUpdate }) => {
     return (
         <Card className="glass-card" sx={{ p: 4, height: '100%' }}>
             <Typography variant="h6" gutterBottom display="flex" alignItems="center" color="primary" sx={{ mb: 3 }}>
-                <PersonAddIcon sx={{ mr: 1.5 }} /> Student Enrollment
+                <PersonAddIcon sx={{ mr: 1.5 }} /> {isUpdate ? 'Update Student Record' : 'Student Enrollment'}
             </Typography>
             <Grid container spacing={3} alignItems="center">
                 <Grid item xs={12}>
@@ -29,7 +29,7 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
                     </TextField>
                 </Grid>
                 <Grid item xs={6}>
-                    <TextField fullWidth label="Sub-Batch" variant="outlined" value={subBatch} onChange={(e) => setSubBatch(e.target.value)} helperText="e.g. Growth Morning" />
+                    <TextField fullWidth label="Sub-Batch" variant="outlined" value={subBatch} onChange={(e) => setSubBatch(e.target.value)} />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField fullWidth label="Parent Contact Email" variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -43,7 +43,7 @@ const RegistrationForm = ({ studentName, setStudentName, rollNumber, setRollNumb
                         disabled={isLoading}
                         sx={{ py: 1.5, borderRadius: 1 }}
                     >
-                        {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Register Candidate'}
+                        {isLoading ? <CircularProgress size={24} color="inherit" /> : (isUpdate ? 'Update Student Info' : 'Register Candidate')}
                     </Button>
                 </Grid>
             </Grid>

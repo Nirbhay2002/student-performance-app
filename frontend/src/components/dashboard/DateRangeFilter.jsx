@@ -6,6 +6,7 @@ const PRESETS = [
     { label: '3 Months', value: '3m' },
     { label: '6 Months', value: '6m' },
     { label: '1 Year', value: '1y' },
+    { label: '2 Years', value: '2y' },
     { label: 'All Time', value: 'all' },
 ];
 
@@ -26,6 +27,7 @@ const DateRangeFilter = ({ startDate, endDate, activePreset, onStartDate, onEndD
             case '3m': start.setMonth(end.getMonth() - 3); break;
             case '6m': start.setMonth(end.getMonth() - 6); break;
             case '1y': start.setFullYear(end.getFullYear() - 1); break;
+            case '2y': start.setFullYear(end.getFullYear() - 2); break;
             default: return;
         }
 
